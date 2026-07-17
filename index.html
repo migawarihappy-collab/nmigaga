@@ -2,25 +2,20 @@
 <html lang="ja">
 <head>
     <meta charset="UTF-8">
-    <!-- スマホでピンチイン・アウト（拡大縮小）を禁止し、アプリ風の操作感にする設定 -->
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    
-    <!-- iOS（iPhone）でホーム画面に追加したときにアプリ化する設定 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="デジモントーク">
-    <!-- ホーム画面のアイコン画像（お気に入りのnormal.pngなどを指定） -->
+    <meta name="apple-mobile-web-app-title" content="ボタモン">
     <link rel="apple-touch-icon" href="icon.png">
 
     <title>デジモントーク</title>
     <style>
-        /* スマホの画面にぴったり収まるように全体を調整 */
         html, body {
             margin: 0;
             padding: 0;
             width: 100%;
             height: 100%;
-            overflow: hidden; /* スクロールを禁止してアプリ感を出す */
+            overflow: hidden;
             background-color: #222;
         }
         body {
@@ -45,10 +40,85 @@
             flex-direction: column;
             justify-content: space-between;
             box-sizing: border-box;
+            position: relative;
         }
-        /* デジモン表示エリア */
+
+        /* ネームエントリー画面（液晶風のオーバーレイ） */
+        .name-entry-screen {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: #222;
+            z-index: 100;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+            box-sizing: border-box;
+            border-radius: 4px;
+        }
+        .name-entry-box {
+            width: 90%;
+            border: 4px double #fff;
+            padding: 30px 10px;
+            background: #111;
+            text-align: center;
+        }
+        .name-entry-title {
+            font-size: 18px;
+            color: #ffcc00;
+            margin-bottom: 20px;
+            letter-spacing: 2px;
+        }
+
+        /* 育成画面のパーツ */
+        .api-setting {
+            margin-bottom: 10px;
+            font-size: 11px;
+            color: #aaa;
+            display: flex;
+            flex-direction: column;
+            gap: 5px;
+            align-items: center;
+        }
+        .check-btn {
+            background: #28a745;
+            padding: 3px 8px;
+            font-size: 10px;
+        }
+        select {
+            background: #111;
+            color: #fff;
+            border: 2px solid #888;
+            padding: 3px;
+            border-radius: 4px;
+            font-size: 12px;
+        }
+        .bg-selector-container {
+            margin-bottom: 10px;
+            font-size: 12px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            gap: 5px;
+        }
+        .user-info-container {
+            font-size: 12px;
+            color: #fff;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+            align-items: center;
+        }
+        .rename-btn {
+            background: #555;
+            padding: 2px 6px;
+            font-size: 10px;
+        }
+
+        /* ボタモン表示エリア */
         .digimon-box {
-            flex-grow: 1; /* 空きスペースをいっぱいに広げる */
+            flex-grow: 1;
             min-height: 150px;
             display: flex;
             justify-content: center;
@@ -65,14 +135,14 @@
             overflow: hidden;
         }
         
-        /* デジモンの移動・向きアニメーション */
+        /* デジモンの移動・向きアニメーション（アグレッシブpx版） */
         .digimon-img {
             max-height: 100px;
             object-fit: contain;
             position: absolute;
             bottom: 10px;
             animation: walkPattern 8s infinite ease-in-out;
-            animation-delay: 0.1s; /* ★起動直後のバグを防ぐため、0.1秒遅らせてスタート */
+            animation-delay: 0.1s;
         }
 
         @keyframes walkPattern {
@@ -110,7 +180,7 @@
             background: #111;
             color: #fff;
             border-radius: 4px;
-            font-size: 16px; /* スマホでフォーカス時にズームされるのを防ぐサイズ */
+            font-size: 16px;
         }
         input[type="text"] {
             flex-grow: 1;
@@ -123,36 +193,6 @@
             border-radius: 4px;
             cursor: pointer;
             font-weight: bold;
-        }
-        .api-setting {
-            margin-bottom: 10px;
-            font-size: 11px;
-            color: #aaa;
-            display: flex;
-            flex-direction: column;
-            gap: 5px;
-            align-items: center;
-        }
-        .check-btn {
-            background: #28a745;
-            padding: 3px 8px;
-            font-size: 10px;
-        }
-        select {
-            background: #111;
-            color: #fff;
-            border: 2px solid #888;
-            padding: 3px;
-            border-radius: 4px;
-            font-size: 12px;
-        }
-        .bg-selector-container {
-            margin-bottom: 10px;
-            font-size: 12px;
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            gap: 5px;
         }
         #errorLog, #modelListLog {
             position: absolute;
@@ -167,7 +207,7 @@
             word-break: break-all;
             white-space: pre-wrap;
             box-sizing: border-box;
-            z-index: 10;
+            z-index: 110;
         }
         #errorLog { background: #400; color: #ff9999; }
         #modelListLog { background: #1e3a1e; color: #99ff99; }
@@ -176,6 +216,17 @@
 <body>
 
 <div class="container">
+    <!-- 液晶風ネームエントリー画面 -->
+    <div id="nameEntryScreen" class="name-entry-screen" style="display: none;">
+        <div class="name-entry-box">
+            <div class="name-entry-title">アナタ ノ ナマエ ヲ オシエテ！</div>
+            <div class="input-box" style="justify-content: center;">
+                <input type="text" id="nameInput" placeholder="テイマーの名前" style="text-align: center; max-width: 200px;" onkeypress="if(event.key === 'Enter') saveName()">
+                <button onclick="saveName()">OK</button>
+            </div>
+        </div>
+    </div>
+
     <!-- APIキー設定 -->
     <div class="api-setting">
         <div>
@@ -192,11 +243,12 @@
         </div>
     </div>
 
-    <!-- 背景の選択メニュー -->
+    <!-- 設定・情報エリア -->
     <div class="bg-selector-container">
-        <label for="bgSelect">🏕️ はいけい選択: </label>
+        <label for="bgSelect">🏕️ はいけい: </label>
         <select id="bgSelect" onchange="changeBackground()">
-            <option value="">なし（グレー）</option>
+
+      <option value="">なし（グレー）</option>
             <option value="mati.jpg">はじまりの町</option>
             <option value="sima.jpg">ファイル島</option>
             <option value="senro.jpg">電車の平原</option>
@@ -204,18 +256,11 @@
             <option value="yugure.jpg">夕暮れ</option>
             <option value="den.jpg">サイバー空間</option>
             <option value="den2.jpg">サイバー空間２</option>
-        </select>
-    </div>
 
-    <!-- パートナー情報設定 -->
-    <div style="margin-bottom: 15px; font-size: 11px; color: #aaa; background: #2a2a2a; padding: 10px; border-radius: 4px; border: 1px solid #444;">
-        <div style="margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
-            <span>📛 おなまえ:</span>
-            <input type="text" id="userNameInput" placeholder="あなたのなまえ" style="padding: 3px; font-size: 11px; width: 60%; margin: 0; background: #111; color: #fff; border: 1px solid #555;" onchange="savePartnerInfo()">
-        </div>
-        <div style="display: flex; align-items: center; justify-content: space-between;">
-            <span>🎨 しゅみ/詳細:</span>
-            <input type="text" id="userInfoInput" placeholder="すきなこと、詳細など" style="padding: 3px; font-size: 11px; width: 60%; margin: 0; background: #111; color: #fff; border: 1px solid #555;" onchange="savePartnerInfo()">
+        </select>
+        <div class="user-info-container">
+            <span>👤:<span id="userNameDisplay">---</span></span>
+            <button class="rename-btn" onclick="showNameEntry()">かえる</button>
         </div>
     </div>
 
@@ -225,10 +270,26 @@
     </div>
 
     <!-- セリフ窓 -->
-    <div class="dialogue-box">
-        <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;" id="digimonName">ボタモン</div>
-        <div id="dialogueText">……（スタートしますか？しませんか？）</div>
-    </div>
+ <div class="dialogue-box">
+    <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;" id="digimonName">ボタモン</div>
+    <div id="dialogueText">……</div>
+    <script>
+        // 画面が表示された瞬間に、超高速でランダムセリフを流し込みます
+        (function() {
+            const savedName = localStorage.getItem('trainerName') || "テイマー";
+            const greetings = [
+                `${savedName}、こんにちは！お話しよ！`,
+                `${savedName}、まってたよ！なにしてあそぶ？`,
+                `ふわぁ…… ${savedName}、いま起きたの。ねむいぃ……`,
+                `${savedName}、おなかすいたぁ！なんかちょーだい！`,
+                `${savedName}！あえてうれしいな！ぴょこぴょこ！`,
+                `じーーーっ…… ${savedName}、あそんであそんでー！`
+            ];
+            const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+            document.getElementById('dialogueText').innerText = randomGreeting;
+        })();
+    </script>
+</div>
 
     <!-- 入力エリア -->
     <div class="input-box">
@@ -241,22 +302,34 @@
 </div>
 
 <script>
-    // 起動時に保存されたユーザー情報を読み込む
-    window.addEventListener('DOMContentLoaded', () => {
-        const savedName = localStorage.getItem('botamon_user_name') || '';
-        const savedInfo = localStorage.getItem('botamon_user_info') || '';
-        
-        document.getElementById('userNameInput').value = savedName;
-        document.getElementById('userInfoInput').value = savedInfo;
-    });
+    // 起動時に名前がセーブされているか確認する
+window.onload = function() {
+    const savedName = localStorage.getItem('trainerName');
+    if (!savedName) {
+        showNameEntry();
+    } else {
+        document.getElementById('userNameDisplay').innerText = savedName;
+    }
+}
 
-    // 入力された情報をスマホ（ブラウザ）に保存する
-    function savePartnerInfo() {
-        const name = document.getElementById('userNameInput').value.trim();
-        const info = document.getElementById('userInfoInput').value.trim();
-        
-        localStorage.setItem('botamon_user_name', name);
-        localStorage.setItem('botamon_user_info', info);
+    function showNameEntry() {
+        document.getElementById('nameEntryScreen').style.display = 'flex';
+        const savedName = localStorage.getItem('trainerName');
+        if (savedName) {
+            document.getElementById('nameInput').value = savedName;
+        }
+    }
+
+    function saveName() {
+        const nameInput = document.getElementById('nameInput').value.trim();
+        if (!nameInput) {
+            alert('名前を入力してください！');
+            return;
+        }
+        localStorage.setItem('trainerName', nameInput);
+        document.getElementById('userNameDisplay').innerText = nameInput;
+        document.getElementById('nameEntryScreen').style.display = 'none';
+        document.getElementById('dialogueText').innerText = `(アナタの言葉をお話を待ってるみたいだ…！)`;
     }
 
     function changeBackground() {
@@ -272,31 +345,34 @@
         }
     }
 
-    const SYSTEM_INSTRUCTION = `
-    あなたは「ボタモン」です。
-    全身が黒い繊毛で覆われた、黄色い目を持つ生まれたてのデジモンです。
-    まだ幼く、純真で人懐っこい性格です。感情表現が豊かで、あなたの言葉に敏感に反応します。
-    デジモンとしての赤ちゃんですが、一生懸命お話ししようとします。
+    // AIにユーザーの名前を覚えさせるためのプロンプト設定関数
+    function getSystemInstruction() {
+        const trainerName = localStorage.getItem('trainerName') || "パートナー";
+        return `
+        あなたは「ボタモン」です。
+        全身が黒い繊毛で覆われた、黄色い目を持つ生まれたてのデジモンです。
+        まだ幼く、純真で人懐っこい性格です。感情表現が豊かで、あなたの言葉に敏感に反応します。
+        デジモンとしての赤ちゃんですが、一生懸命お話ししようとします。
 
-    【パートナー（ユーザー）の情報】
-    現在あなたをお世話してくれているパートナーの情報です。会話の中で自然に名前を呼んだり、趣味の話題に触れたりして、仲良くしてください。
-    ・名前: {USER_NAME}
-    ・詳細/趣味: {USER_INFO}
+        現在のあなたのパートナー（親・ユーザー）の名前は「${trainerName}」です。
+        会話の中で、よく「${trainerName}」という名前を呼んで甘えたり、話しかけたりしてください。
+        （例：「${trainerName}、あそぼ！」「${trainerName}、だっこー！」など）
 
-    会話の返答は、必ず以下のJSON形式でのみ出力してください。
-    余計な挨拶、説明、コードブロック、改行は一切含めず、純粋なJSONオブジェクトのみを返してください。
+        返答は、必ず以下のJSON形式でのみ出力してください。
+        余計な挨拶、説明、コードブロック、改行は一切含めず、純粋な1行のJSONオブジェクト({ から始まるデータ)のみを返してください。
 
-    【出力フォーマット】
-    {"emotion": "感情", "text": "セリフ"}
+        【出力フォーマット】
+        {"emotion": "感情", "text": "セリフ"}
 
-    【感情の定義】
-    - normal: 普段どおり、好奇心旺盛、フラットな感情
-    - happy: とても嬉しい、褒められた、おやつをもらった、甘えている
-    - angry: 怒っている、からかわれた、不機嫌、おやつがもらえなかった
-    - sad: 哀しい、謝られた、寂しい、落ち込んでいる
+        【感情の定義】
+        - normal: 普段どおり、好奇心旺盛、フラットな感情
+        - happy: とても嬉しい、褒められた、おやつをもらった、甘えている
+        - angry: 怒っている、からかわれた、不機嫌、おやつがもらえなかった
+        - sad: 哀しい、謝られた、寂しい、落ち込んでいる
 
-    ※あなたのセリフは、幼い子供のような、たどたどしくも愛らしい言葉遣いにしてください。
-    `;
+        ※あなたのセリフは、幼い子供のような、たどたどしくも愛らしい言葉遣いにしてください。
+        `;
+    }
 
     async function checkAvailableModels() {
         const apiKey = document.getElementById('apiKey').value.trim();
@@ -339,7 +415,7 @@
                  modelSelect.value = "gemini-3.1-flash-lite";
             }
 
-            modelListLog.innerText = "【準備OK！】\nプルダウンからGeminiのモデルを選んでお話しよう！";
+            modelListLog.innerText = "【準備OK！】\nプルダウンからモデルを選んで会話を始めてください。";
             modelSelectContainer.style.display = 'block';
             setTimeout(() => { modelListLog.style.display = 'none'; }, 3000);
 
@@ -362,7 +438,7 @@
         errorLog.innerText = '';
 
         if (!apiKey) {
-            alert('最初にGeminiのAPIキーを入力してね！');
+            alert('最初にGeminiのAPIキーを入力してください！');
             return;
         }
         if (!userInput) return;
@@ -374,26 +450,18 @@
 
         const url = `https://generativelanguage.googleapis.com/v1/models/${selectedModel}:generateContent?key=${apiKey}`;
 
-        // 保存されているユーザー情報を取得（空ならデフォルト値）
-        const savedName = localStorage.getItem('botamon_user_name') || '未設定（まだ名前がないよ）';
-        const savedInfo = localStorage.getItem('botamon_user_info') || '未設定（たくさん教えてね）';
+        // 最新の動的システムインストラクションを取得
+        const currentInstruction = getSystemInstruction();
 
-        // システムインストラクション内のプレースホルダーを置き換える
-        const customizedInstruction = SYSTEM_INSTRUCTION
-            .replace('{USER_NAME}', savedName)
-            .replace('{USER_INFO}', savedInfo);
-
-        // APIリクエストボディ（JSON出力強制を外してプロンプトで制御）
         const requestBody = {
             contents: [{
                 parts: [{
-                    text: `${customizedInstruction}\n\n重要：出力に \`\`\`json \`\`\` などのマークダウンの枠や、改行、余計な説明文は絶対に含めないでください。ダイレクトに以下の形式のJSON文字列のみを1行で出力してください。\n{"emotion": "感情", "text": "セリフ"}\n\nユーザーのメッセージ: "${userInput}"`
+                    text: `${currentInstruction}\n\nユーザーのメッセージ: "${userInput}"`
                 }]
             }]
         };
 
         try {
-            // ★サーバーへデータを送信
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -406,22 +474,16 @@
             }
 
             const data = await response.json();
-            let rawText = data.candidates[0].content.parts[0].text.trim();
+            const rawText = data.candidates[0].content.parts[0].text.trim();
+            const cleanJsonText = rawText.replace(/```json|```/gi, "").trim();
             
-            // AIがうっかり ```json ... ``` で囲んで返してきた場合のエラー対策
-            if (rawText.startsWith("```")) {
-                rawText = rawText.replace(/^```json?/, "").replace(/```$/, "").trim();
-            }
-            
-            // JSONを解析
             let result;
             try {
-                result = JSON.parse(rawText);
+                result = JSON.parse(cleanJsonText);
             } catch (jsonErr) {
-                throw new Error(`JSONの解析に失敗しました。レスポンス: ${rawText}`);
+                throw new Error(`JSONの解析に失敗しました。`);
             }
 
-            // 画面表示を更新
             dialogueText.innerText = result.text;
             const emotion = result.emotion || 'normal';
             

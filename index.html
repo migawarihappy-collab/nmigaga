@@ -219,9 +219,9 @@
     <!-- 液晶風ネームエントリー画面 -->
     <div id="nameEntryScreen" class="name-entry-screen" style="display: none;">
         <div class="name-entry-box">
-            <div class="name-entry-title">アナタ ノ ナマエ ヲ オシエテ！</div>
+            <div class="name-entry-title">アナタノ ナマエ オシエテ！</div>
             <div class="input-box" style="justify-content: center;">
-                <input type="text" id="nameInput" placeholder="テイマーの名前" style="text-align: center; max-width: 200px;" onkeypress="if(event.key === 'Enter') saveName()">
+                <input type="text" id="nameInput" placeholder="アナタの名前" style="text-align: center; max-width: 200px;" onkeypress="if(event.key === 'Enter') saveName()">
                 <button onclick="saveName()">OK</button>
             </div>
         </div>
@@ -284,7 +284,8 @@
                 `${savedName}、おなかすいたぁ！なんかちょーだい！`,
                 `${savedName}！あえてうれしいな！ぴょこぴょこ！`,
                 `じーーーっ…… ${savedName}、あそんであそんでー！`
-            ];
+                 `あ～！ ${savedName}だ～！おかえり！`
+           ];
             const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
             document.getElementById('dialogueText').innerText = randomGreeting;
         })();

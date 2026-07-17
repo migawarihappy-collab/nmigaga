@@ -8,11 +8,11 @@
     <!-- iOS（iPhone）でホーム画面に追加したときにアプリ化する設定 -->
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
-    <meta name="apple-mobile-web-app-title" content="ボタモン">
+    <meta name="apple-mobile-web-app-title" content="デジモントーク">
     <!-- ホーム画面のアイコン画像（お気に入りのnormal.pngなどを指定） -->
     <link rel="apple-touch-icon" href="icon.png">
 
-    <title>ボタモン 育成ギア</title>
+    <title>デジモントーク</title>
     <style>
         /* スマホの画面にぴったり収まるように全体を調整 */
         html, body {
@@ -46,7 +46,7 @@
             justify-content: space-between;
             box-sizing: border-box;
         }
-        /* ボタモン表示エリア */
+        /* デジモン表示エリア */
         .digimon-box {
             flex-grow: 1; /* 空きスペースをいっぱいに広げる */
             min-height: 150px;
@@ -65,7 +65,7 @@
             overflow: hidden;
         }
         
-        /* ボタモンの移動・向きアニメーション */
+        /* デジモンの移動・向きアニメーション */
         .digimon-img {
             max-height: 100px;
             object-fit: contain;
@@ -216,7 +216,7 @@
     <!-- セリフ窓 -->
     <div class="dialogue-box">
         <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;" id="digimonName">ボタモン</div>
-        <div id="dialogueText">……（話しかけてみてね！）</div>
+        <div id="dialogueText">……（スタートしますか？しませんか？）</div>
     </div>
 
     <!-- 入力エリア -->
@@ -305,7 +305,7 @@
                  modelSelect.value = "gemini-3.1-flash-lite";
             }
 
-            modelListLog.innerText = "【準備OK！】\nプルダウンからモデルを選んで会話を始めてください。";
+            modelListLog.innerText = "【準備OK！】\nプルダウンからgilemiのモデルを選んでお話いしよう！。";
             modelSelectContainer.style.display = 'block';
             setTimeout(() => { modelListLog.style.display = 'none'; }, 3000); // 3秒後にログを自動で消す
 
@@ -328,7 +328,7 @@
         errorLog.innerText = '';
 
         if (!apiKey) {
-            alert('最初にGeminiのAPIキーを入力してください！');
+            alert('最初にGeminiのAPIキーを入力してね！');
             return;
         }
         if (!userInput) return;

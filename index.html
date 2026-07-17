@@ -67,12 +67,13 @@
         
         /* デジモンの移動・向きアニメーション */
         .digimon-img {
-            max-height: 100px;
-            object-fit: contain;
-            position: absolute;
-            bottom: 10px;
-            animation: walkPattern 8s infinite ease-in-out;
-        }
+           max-height: 100px;
+    object-fit: contain;
+    position: absolute;
+    bottom: 10px;
+    animation: walkPattern 8s infinite ease-in-out;
+    animation-delay: 0.1s; /* ★起動直後のバグを防ぐため、0.1秒遅らせてスタート */
+}
 
         @keyframes walkPattern {
             0% { transform: translateX(0) scaleX(1); }
@@ -210,7 +211,7 @@
 
     <!-- ボタモンの表示エリア -->
    <div class="digimon-box" id="digimonBox">
-    <img id="digimonImage" src="normal.gif" alt="normal" class="digimon-img" loading="eager">
+   <img id="digimonImage" src="normal.gif" alt="normal" class="digimon-img" loading="eager">
 </div>
 
     <!-- セリフ窓 -->

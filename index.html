@@ -10,6 +10,7 @@
 
     <title>デジモントーク</title>
     <style>
+@import url('https://fonts.googleapis.com/css2?family=DotGothic16&display=swap');
         html, body {
             margin: 0;
             padding: 0;
@@ -159,16 +160,18 @@
             100% { transform: translateX(0) scaleX(1); }
         }
 
-        .dialogue-box {
-            background: #000;
-            border: 2px solid #888;
-            padding: 10px;
-            min-height: 80px;
-            text-align: left;
-            margin-bottom: 10px;
-            line-height: 1.4;
-            font-size: 14px;
-        }
+        /* 修正後（ドットフォントを適用！） */
+.dialogue-box {
+    background: #000;
+    border: 2px solid #888;
+    padding: 10px;
+    min-height: 80px;
+    text-align: left;
+    margin-bottom: 10px;
+    line-height: 1.4;
+    font-size: 15px; 
+    font-family: 'DotGothic16', sans-serif;
+}
         .input-box {
             display: flex;
             gap: 10px;

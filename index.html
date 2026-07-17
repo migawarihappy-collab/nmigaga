@@ -270,13 +270,17 @@
     </div>
 
     <!-- セリフ窓 -->
- <div class="dialogue-box">
+<div class="dialogue-box">
     <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;" id="digimonName">ボタモン</div>
-    <div id="dialogueText">……</div>
+    
+      <div id="dialogueText"></div>
+    
     <script>
-        // 画面が表示された瞬間に、超高速でランダムセリフを流し込みます
         (function() {
+            // 名前の読み込み
             const savedName = localStorage.getItem('trainerName') || "テイマー";
+            
+            // 2. セリフのリストを用意する
             const greetings = [
                 `${savedName}、こんにちは！お話しよ！`,
                 `${savedName}、まってたよ！なにしてあそぶ？`,
@@ -284,9 +288,12 @@
                 `${savedName}、おなかすいたぁ！なんかちょーだい！`,
                 `${savedName}！あえてうれしいな！ぴょこぴょこ！`,
                 `じーーーっ…… ${savedName}、あそんであそんでー！`
-                 `あ～！ ${savedName}だ～！おかえり！`
-           ];
+            ];
+            
+            // 3. サイコロを振って1つ選ぶ
             const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+            
+            // 4. 空っぽだった「dialogueText」の中に、選んだセリフを流し込む！
             document.getElementById('dialogueText').innerText = randomGreeting;
         })();
     </script>

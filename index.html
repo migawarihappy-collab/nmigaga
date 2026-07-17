@@ -383,19 +383,17 @@
             .replace('{USER_NAME}', savedName)
             .replace('{USER_INFO}', savedInfo);
 
-        // APIリクエストボディ（JSON出力強制設定を追加）
+        // APIリクエストボディ（JSON出力強制を外してプロンプトで制御）
         const requestBody = {
             contents: [{
                 parts: [{
-                    text: `${customizedInstruction}\n\nユーザーのメッセージ: "${userInput}"`
+                    text: `${customizedInstruction}\n\n重要：出力に \`\`\`json \`\`\` などのマークダウンの枠や、改行、余計な説明文は絶対に含めないでください。ダイレクトに以下の形式のJSON文字列のみを1行で出力してください。\n{"emotion": "感情", "text": "セリフ"}\n\nユーザーのメッセージ: "${userInput}"`
                 }]
-            }],
-            generationConfig: {
-                responseMimeType: "application/json"
-            }
+            }]
         };
 
         try {
+            // ★サーバーへデータを送信
             const response = await fetch(url, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -408,8 +406,14 @@
             }
 
             const data = await response.json();
-            const rawText = data.candidates[0].content.parts[0].text.trim();
+            let rawText = data.candidates[0].content.parts[0].text.trim();
             
+            // AIがうっかり ```json ... ``` で囲んで返してきた場合のエラー対策
+            if (rawText.startsWith("```")) {
+                rawText = rawText.replace(/^```json?/, "").replace(/```$/, "").trim();
+            }
+            
+            // JSONを解析
             let result;
             try {
                 result = JSON.parse(rawText);
@@ -417,6 +421,7 @@
                 throw new Error(`JSONの解析に失敗しました。レスポンス: ${rawText}`);
             }
 
+            // 画面表示を更新
             dialogueText.innerText = result.text;
             const emotion = result.emotion || 'normal';
             

@@ -67,26 +67,26 @@
         
         /* デジモンの移動・向きアニメーション */
         .digimon-img {
-           max-height: 100px;
-    object-fit: contain;
-    position: absolute;
-    bottom: 10px;
-    animation: walkPattern 8s infinite ease-in-out;
-    animation-delay: 0.1s; /* ★起動直後のバグを防ぐため、0.1秒遅らせてスタート */
-}
+            max-height: 100px;
+            object-fit: contain;
+            position: absolute;
+            bottom: 10px;
+            animation: walkPattern 8s infinite ease-in-out;
+            animation-delay: 0.1s; /* ★起動直後のバグを防ぐため、0.1秒遅らせてスタート */
+        }
 
         @keyframes walkPattern {
-    0% { transform: translateX(0) scaleX(1); }
-    12.5% { transform: translateX(60px) scaleX(1); }
-    25% { transform: translateX(60px) scaleX(1); }
-    25.01% { transform: translateX(60px) scaleX(-1); }
-    37.5% { transform: translateX(0) scaleX(-1); }
-    50% { transform: translateX(0) scaleX(-1); }
-    62.5% { transform: translateX(-60px) scaleX(-1); }
-    75% { transform: translateX(-60px) scaleX(-1); }
-    75.01% { transform: translateX(-60px) scaleX(1); }
-    87.5% { transform: translateX(0) scaleX(1); }
-    100% { transform: translateX(0) scaleX(1); }
+            0% { transform: translateX(0) scaleX(1); }
+            12.5% { transform: translateX(60px) scaleX(1); }
+            25% { transform: translateX(60px) scaleX(1); }
+            25.01% { transform: translateX(60px) scaleX(-1); }
+            37.5% { transform: translateX(0) scaleX(-1); }
+            50% { transform: translateX(0) scaleX(-1); }
+            62.5% { transform: translateX(-60px) scaleX(-1); }
+            75% { transform: translateX(-60px) scaleX(-1); }
+            75.01% { transform: translateX(-60px) scaleX(1); }
+            87.5% { transform: translateX(0) scaleX(1); }
+            100% { transform: translateX(0) scaleX(1); }
         }
 
         .dialogue-box {
@@ -192,11 +192,10 @@
         </div>
     </div>
 
-    <!-- ★ 背景の選択メニュー ★ -->
+    <!-- 背景の選択メニュー -->
     <div class="bg-selector-container">
         <label for="bgSelect">🏕️ はいけい選択: </label>
         <select id="bgSelect" onchange="changeBackground()">
-            <!-- ここに用意した画像名と、画面に表示したい名前を書きます -->
             <option value="">なし（グレー）</option>
             <option value="mati.jpg">はじまりの町</option>
             <option value="sima.jpg">ファイル島</option>
@@ -205,14 +204,25 @@
             <option value="yugure.jpg">夕暮れ</option>
             <option value="den.jpg">サイバー空間</option>
             <option value="den2.jpg">サイバー空間２</option>
+        </select>
+    </div>
 
-         </select>
- </div>
+    <!-- パートナー情報設定 -->
+    <div style="margin-bottom: 15px; font-size: 11px; color: #aaa; background: #2a2a2a; padding: 10px; border-radius: 4px; border: 1px solid #444;">
+        <div style="margin-bottom: 5px; display: flex; align-items: center; justify-content: space-between;">
+            <span>📛 おなまえ:</span>
+            <input type="text" id="userNameInput" placeholder="あなたのなまえ" style="padding: 3px; font-size: 11px; width: 60%; margin: 0; background: #111; color: #fff; border: 1px solid #555;" onchange="savePartnerInfo()">
+        </div>
+        <div style="display: flex; align-items: center; justify-content: space-between;">
+            <span>🎨 しゅみ/詳細:</span>
+            <input type="text" id="userInfoInput" placeholder="すきなこと、詳細など" style="padding: 3px; font-size: 11px; width: 60%; margin: 0; background: #111; color: #fff; border: 1px solid #555;" onchange="savePartnerInfo()">
+        </div>
+    </div>
 
     <!-- ボタモンの表示エリア -->
-   <div class="digimon-box" id="digimonBox">
-   <img id="digimonImage" src="normal.gif" alt="normal" class="digimon-img" loading="eager">
-</div>
+    <div class="digimon-box" id="digimonBox">
+        <img id="digimonImage" src="normal.gif" alt="normal" class="digimon-img" loading="eager">
+    </div>
 
     <!-- セリフ窓 -->
     <div class="dialogue-box">
@@ -231,6 +241,24 @@
 </div>
 
 <script>
+    // 起動時に保存されたユーザー情報を読み込む
+    window.addEventListener('DOMContentLoaded', () => {
+        const savedName = localStorage.getItem('botamon_user_name') || '';
+        const savedInfo = localStorage.getItem('botamon_user_info') || '';
+        
+        document.getElementById('userNameInput').value = savedName;
+        document.getElementById('userInfoInput').value = savedInfo;
+    });
+
+    // 入力された情報をスマホ（ブラウザ）に保存する
+    function savePartnerInfo() {
+        const name = document.getElementById('userNameInput').value.trim();
+        const info = document.getElementById('userInfoInput').value.trim();
+        
+        localStorage.setItem('botamon_user_name', name);
+        localStorage.setItem('botamon_user_info', info);
+    }
+
     function changeBackground() {
         const bgSelect = document.getElementById('bgSelect');
         const digimonBox = document.getElementById('digimonBox');
@@ -250,8 +278,13 @@
     まだ幼く、純真で人懐っこい性格です。感情表現が豊かで、あなたの言葉に敏感に反応します。
     デジモンとしての赤ちゃんですが、一生懸命お話ししようとします。
 
+    【パートナー（ユーザー）の情報】
+    現在あなたをお世話してくれているパートナーの情報です。会話の中で自然に名前を呼んだり、趣味の話題に触れたりして、仲良くしてください。
+    ・名前: {USER_NAME}
+    ・詳細/趣味: {USER_INFO}
+
     会話の返答は、必ず以下のJSON形式でのみ出力してください。
-    余計な挨拶、説明、コードブロック、改行は一切含めず、純粋な1行のJSONオブジェクト({ から始まるデータ)のみを返してください。
+    余計な挨拶、説明、コードブロック、改行は一切含めず、純粋なJSONオブジェクトのみを返してください。
 
     【出力フォーマット】
     {"emotion": "感情", "text": "セリフ"}
@@ -306,9 +339,9 @@
                  modelSelect.value = "gemini-3.1-flash-lite";
             }
 
-            modelListLog.innerText = "【準備OK！】\nプルダウンからgilemiのモデルを選んでお話いしよう！。";
+            modelListLog.innerText = "【準備OK！】\nプルダウンからGeminiのモデルを選んでお話しよう！";
             modelSelectContainer.style.display = 'block';
-            setTimeout(() => { modelListLog.style.display = 'none'; }, 3000); // 3秒後にログを自動で消す
+            setTimeout(() => { modelListLog.style.display = 'none'; }, 3000);
 
         } catch (error) {
             modelListLog.style.display = 'none';
@@ -341,12 +374,25 @@
 
         const url = `https://generativelanguage.googleapis.com/v1/models/${selectedModel}:generateContent?key=${apiKey}`;
 
+        // 保存されているユーザー情報を取得（空ならデフォルト値）
+        const savedName = localStorage.getItem('botamon_user_name') || '未設定（まだ名前がないよ）';
+        const savedInfo = localStorage.getItem('botamon_user_info') || '未設定（たくさん教えてね）';
+
+        // システムインストラクション内のプレースホルダーを置き換える
+        const customizedInstruction = SYSTEM_INSTRUCTION
+            .replace('{USER_NAME}', savedName)
+            .replace('{USER_INFO}', savedInfo);
+
+        // APIリクエストボディ（JSON出力強制設定を追加）
         const requestBody = {
             contents: [{
                 parts: [{
-                    text: `${SYSTEM_INSTRUCTION}\n\nユーザーのメッセージ: "${userInput}"`
+                    text: `${customizedInstruction}\n\nユーザーのメッセージ: "${userInput}"`
                 }]
-            }]
+            }],
+            generationConfig: {
+                responseMimeType: "application/json"
+            }
         };
 
         try {
@@ -363,13 +409,12 @@
 
             const data = await response.json();
             const rawText = data.candidates[0].content.parts[0].text.trim();
-            const cleanJsonText = rawText.replace(/```json|```/gi, "").trim();
             
             let result;
             try {
-                result = JSON.parse(cleanJsonText);
+                result = JSON.parse(rawText);
             } catch (jsonErr) {
-                throw new Error(`JSONの解析に失敗しました。`);
+                throw new Error(`JSONの解析に失敗しました。レスポンス: ${rawText}`);
             }
 
             dialogueText.innerText = result.text;

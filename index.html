@@ -160,18 +160,18 @@
             100% { transform: translateX(0) scaleX(1); }
         }
 
-        /* 修正後（ドットフォントを適用！） */
-.dialogue-box {
-    background: #000;
-    border: 2px solid #888;
-    padding: 10px;
-    min-height: 80px;
-    text-align: left;
-    margin-bottom: 10px;
-    line-height: 1.4;
-    font-size: 15px; 
-    font-family: 'DotGothic16', sans-serif;
-}
+        /* ドットフォントを適用 */
+        .dialogue-box {
+            background: #000;
+            border: 2px solid #888;
+            padding: 10px;
+            min-height: 80px;
+            text-align: left;
+            margin-bottom: 10px;
+            line-height: 1.4;
+            font-size: 15px; 
+            font-family: 'DotGothic16', sans-serif;
+        }
         .input-box {
             display: flex;
             gap: 10px;
@@ -224,7 +224,7 @@
         <div class="name-entry-box">
             <div class="name-entry-title">アナタノ ナマエ オシエテ！</div>
             <div class="input-box" style="justify-content: center;">
-                <input type="text" id="nameInput" placeholder="アナタの名前" style="text-align: center; max-width: 200px;" onkeypress="if(event.key === 'Enter') saveName()">
+                <input type="text" id="nameInput" placeholder="スタートしますか？しませんか？" style="text-align: center; max-width: 200px;" onkeypress="if(event.key === 'Enter') saveName()">
                 <button onclick="saveName()">OK</button>
             </div>
         </div>
@@ -250,8 +250,7 @@
     <div class="bg-selector-container">
         <label for="bgSelect">🏕️ はいけい: </label>
         <select id="bgSelect" onchange="changeBackground()">
-
-      <option value="">なし（グレー）</option>
+            <option value="">なし（グレー）</option>
             <option value="mati.jpg">はじまりの町</option>
             <option value="sima.jpg">ファイル島</option>
             <option value="senro.jpg">電車の平原</option>
@@ -259,7 +258,6 @@
             <option value="yugure.jpg">夕暮れ</option>
             <option value="den.jpg">サイバー空間</option>
             <option value="den2.jpg">サイバー空間２</option>
-
         </select>
         <div class="user-info-container">
             <span>👤:<span id="userNameDisplay">---</span></span>
@@ -273,34 +271,26 @@
     </div>
 
     <!-- セリフ窓 -->
-<div class="dialogue-box">
-    <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;" id="digimonName">ボタモン</div>
-    
-      <div id="dialogueText"></div>
-    
-    <script>
-        (function() {
-            // 名前の読み込み
-            const savedName = localStorage.getItem('trainerName') || "テイマー";
-            
-            // 2. セリフのリストを用意する
-            const greetings = [
-                `${savedName}、こんにちは！お話しよ！`,
-                `${savedName}、まってたよ！なにしてあそぶ？`,
-                `ふわぁ…… ${savedName}、いま起きたの。ねむいぃ……`,
-                `${savedName}、おなかすいたぁ！なんかちょーだい！`,
-                `${savedName}！あえてうれしいな！ぴょこぴょこ！`,
-                `じーーーっ…… ${savedName}、あそんであそんでー！`
-            ];
-            
-            // 3. サイコロを振って1つ選ぶ
-            const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-            
-            // 4. 空っぽだった「dialogueText」の中に、選んだセリフを流し込む！
-            document.getElementById('dialogueText').innerText = randomGreeting;
-        })();
-    </script>
-</div>
+    <div class="dialogue-box">
+        <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;" id="digimonName">ボタモン</div>
+        <div id="dialogueText"></div>
+        
+        <script>
+            (function() {
+                const savedName = localStorage.getItem('trainerName') || "テイマー";
+                const greetings = [
+                    `${savedName}、こんにちは！お話しよ！`,
+                    `${savedName}、まってたよ！なにしてあそぶ？`,
+                    `ふわぁ…… ${savedName}、いま起きたの。ねむいぃ……`,
+                    `${savedName}、おなかすいたぁ！なんかちょーだい！`,
+                    `${savedName}！あえてうれしいな！ぴょこぴょこ！`,
+                    `じーーーっ…… ${savedName}、あそんであそんでー！`
+                ];
+                const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
+                document.getElementById('dialogueText').innerText = randomGreeting;
+            })();
+        </script>
+    </div>
 
     <!-- 入力エリア -->
     <div class="input-box">
@@ -313,15 +303,61 @@
 </div>
 
 <script>
-    // 起動時に名前がセーブされているか確認する
-window.onload = function() {
-    const savedName = localStorage.getItem('trainerName');
-    if (!savedName) {
-        showNameEntry();
-    } else {
-        document.getElementById('userNameDisplay').innerText = savedName;
+    // 進化管理用の変数
+    let talkCount = 0;
+    let currentForm = 'botamon';
+
+    // ボタモン専用のAI指示
+    function setInstructionForBotamon() {
+        window.SYSTEM_INSTRUCTION = `
+        あなたはデジモンの「ボタモン」です。
+        生まれたばかりの幼年期Ⅰのデジモンで、まだ言葉がうまく喋れません。
+        「あぅ」「きゅー」「ぼた…」などの喃語を交えた赤ちゃん言葉しか話せません。
+        話しかけてくれているパートナーの名前を呼ぶときは、甘えるように優しく呼んでください。
+
+        会話の返答は、必ず以下のJSON形式でのみ出力してください。
+        {"emotion": "感情の英単語", "text": "セリフ"}
+
+        【感情の定義】
+        - normal: 通常、きょとんとしている、疑問、穏やか
+        - happy: 嬉しい、喜んでいる、ウキウキ、共感、元気
+        - angry: 怒っている、ぷんぷん、興奮、自信満々、ツッコミ、ツンデレ
+        - sad: 悲しい、泣きそう、悔しい、感動、怖い
+        `;
     }
-}
+
+    // コロモン専用のAI指示
+    function setInstructionForKoromon() {
+        window.SYSTEM_INSTRUCTION = `
+        あなたは「コロモン」です。
+        ボタモンから進化した、ピンク色の体に長い耳のような触角を持つ幼年期Ⅱのデジモンです。
+        ボタモンの頃よりも少し言葉がはっきりし、元気いっぱいで大はしゃぎします。
+        目の前にいるパートナーの名前を親しみを持って呼んであげてください。
+        
+        会話の返答は、必ず以下のJSON形式でのみ出力してください。
+        {"emotion": "感情の英単語", "text": "セリフ"}
+
+        【感情の定義（※必ず英語で。日本語禁止）】
+        - normal: 通常、きょとんとしている、疑問、穏やか
+        - happy: 嬉しい、喜んでいる、ウキウキ、共感、元気
+        - angry: 怒っている、ぷんぷん、興奮、自信満々、ツッコミ、ツンデレ
+        - sad: 悲しい、泣きそう、悔しい、感動、怖い
+
+        ※セリフの語尾に「〜だもん」や「〜だよ」を混ぜて、元気な幼い子供のように喋ってください。
+        `;
+    }
+
+    // 起動時に名前の確認と初期設定
+    window.onload = function() {
+        setInstructionForBotamon();
+
+        const savedName = localStorage.getItem('trainerName');
+        if (!savedName) {
+            showNameEntry();
+        } else {
+            document.getElementById('userNameDisplay').innerText = savedName;
+        }
+    }
 
     function showNameEntry() {
         document.getElementById('nameEntryScreen').style.display = 'flex';
@@ -340,7 +376,7 @@ window.onload = function() {
         localStorage.setItem('trainerName', nameInput);
         document.getElementById('userNameDisplay').innerText = nameInput;
         document.getElementById('nameEntryScreen').style.display = 'none';
-        document.getElementById('dialogueText').innerText = `(アナタの言葉をお話を待ってるみたいだ…！)`;
+        document.getElementById('dialogueText').innerText = `(アナタの言葉を待ってるみたいだ…！)`;
     }
 
     function changeBackground() {
@@ -351,40 +387,13 @@ window.onload = function() {
         if (selectedBg === "") {
             digimonBox.style.background = "#444";
         } else {
+            bgSelect.blur();
             digimonBox.style.background = `url('${selectedBg}') no-repeat center`;
             digimonBox.style.backgroundSize = "cover";
         }
     }
 
-    // AIにユーザーの名前を覚えさせるためのプロンプト設定関数
-    function getSystemInstruction() {
-        const trainerName = localStorage.getItem('trainerName') || "パートナー";
-        return `
-        あなたは「ボタモン」です。
-        全身が黒い繊毛で覆われた、黄色い目を持つ生まれたてのデジモンです。
-        まだ幼く、純真で人懐っこい性格です。感情表現が豊かで、あなたの言葉に敏感に反応します。
-        デジモンとしての赤ちゃんですが、一生懸命お話ししようとします。
-
-        現在のあなたのパートナー（親・ユーザー）の名前は「${trainerName}」です。
-        会話の中で、よく「${trainerName}」という名前を呼んで甘えたり、話しかけたりしてください。
-        （例：「${trainerName}、あそぼ！」「${trainerName}、だっこー！」など）
-
-        返答は、必ず以下のJSON形式でのみ出力してください。
-        余計な挨拶、説明、コードブロック、改行は一切含めず、純粋な1行のJSONオブジェクト({ から始まるデータ)のみを返してください。
-
-        【出力フォーマット】
-        {"emotion": "感情", "text": "セリフ"}
-
-        【感情の定義】
-        - normal: 普段どおり、好奇心旺盛、フラットな感情
-        - happy: とても嬉しい、褒められた、おやつをもらった、甘えている
-        - angry: 怒っている、からかわれた、不機嫌、おやつがもらえなかった
-        - sad: 哀しい、謝られた、寂しい、落ち込んでいる
-
-        ※あなたのセリフは、幼い子供のような、たどたどしくも愛らしい言葉遣いにしてください。
-        `;
-    }
-
+    // モデル確認
     async function checkAvailableModels() {
         const apiKey = document.getElementById('apiKey').value.trim();
         const modelListLog = document.getElementById('modelListLog');
@@ -437,6 +446,7 @@ window.onload = function() {
         }
     }
 
+    // メッセージ送信
     async function sendMessage() {
         const apiKey = document.getElementById('apiKey').value.trim();
         const userInput = document.getElementById('userInput').value.trim();
@@ -455,19 +465,21 @@ window.onload = function() {
         if (!userInput) return;
 
         const selectedModel = modelSelect.value || 'gemini-3.1-flash-lite';
+        
+        // ★ローカルストレージから最新のトレーナー名を取得してAIに教える
+        const currentTrainerName = localStorage.getItem('trainerName') || "パートナー";
 
         dialogueText.innerText = "考え中...";
         document.getElementById('userInput').value = "";
+        document.getElementById('userInput').blur();
 
         const url = `https://generativelanguage.googleapis.com/v1/models/${selectedModel}:generateContent?key=${apiKey}`;
-
-        // 最新の動的システムインストラクションを取得
-        const currentInstruction = getSystemInstruction();
 
         const requestBody = {
             contents: [{
                 parts: [{
-                    text: `${currentInstruction}\n\nユーザーのメッセージ: "${userInput}"`
+                    // ★指示の中にトレーナーの名前の情報をバインド
+                    text: `${SYSTEM_INSTRUCTION}\n\n話しかけているトレーナーの名前: "${currentTrainerName}"\nユーザーのメッセージ: "${userInput}"`
                 }]
             }]
         };
@@ -497,9 +509,30 @@ window.onload = function() {
 
             dialogueText.innerText = result.text;
             const emotion = result.emotion || 'normal';
-            
-            digimonImage.src = `${emotion}.gif`;
-            digimonImage.alt = emotion;
+
+            // 進化チェック＆画像切り替えロジック
+            if (currentForm === 'botamon') {
+                talkCount++;
+                console.log("現在の会話回数: " + talkCount);
+
+                if (talkCount >= 10) {
+                    currentForm = 'koromon';
+                    alert("ボタモンしんか～！");
+                    document.getElementById('digimonName').innerText = "コロモン";
+                    
+                    digimonImage.src = "koromon_normal.gif";
+                    digimonImage.alt = "koromon_normal";
+                    dialogueText.innerText = "ボタモンは コロモン に進化した！";
+                    
+                    setInstructionForKoromon();
+                } else {
+                    digimonImage.src = `${emotion}.gif`;
+                    digimonImage.alt = emotion;
+                }
+            } else {
+                digimonImage.src = `koromon_${emotion}.gif`;
+                digimonImage.alt = `koromon_${emotion}`;
+            }
 
         } catch (error) {
             dialogueText.innerText = "エラーが発生しました。下のボックスを確認してください。";

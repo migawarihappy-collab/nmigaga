@@ -136,7 +136,7 @@
             overflow: hidden;
         }
         
-        /* デジモンの移動・向きアニメーション（アグレッシブpx版） */
+        /* デジモンの移動・向きアニメーション */
         .digimon-img {
             max-height: 100px;
             object-fit: contain;
@@ -224,7 +224,7 @@
         <div class="name-entry-box">
             <div class="name-entry-title">アナタノ ナマエ オシエテ！</div>
             <div class="input-box" style="justify-content: center;">
-                <input type="text" id="nameInput" placeholder="スタートしますか？しませんか？" style="text-align: center; max-width: 200px;" onkeypress="if(event.key === 'Enter') saveName()">
+                <input type="text" id="nameInput" placeholder="アナタの名前" style="text-align: center; max-width: 200px;" onkeypress="if(event.key === 'Enter') saveName()">
                 <button onclick="saveName()">OK</button>
             </div>
         </div>
@@ -272,24 +272,11 @@
 
     <!-- セリフ窓 -->
     <div class="dialogue-box">
-        <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;" id="digimonName">ボタモン</div>
+        <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;">
+            <span id="digimonName">ボタモン</span>
+            <span id="personalityDisplay" style="font-size: 10px; color: #aaa; margin-left: 5px;"></span>
+        </div>
         <div id="dialogueText"></div>
-        
-        <script>
-            (function() {
-                const savedName = localStorage.getItem('trainerName') || "テイマー";
-                const greetings = [
-                    `${savedName}、こんにちは！お話しよ！`,
-                    `${savedName}、まってたよ！なにしてあそぶ？`,
-                    `ふわぁ…… ${savedName}、いま起きたの。ねむいぃ……`,
-                    `${savedName}、おなかすいたぁ！なんかちょーだい！`,
-                    `${savedName}！あえてうれしいな！ぴょこぴょこ！`,
-                    `じーーーっ…… ${savedName}、あそんであそんでー！`
-                ];
-                const randomGreeting = greetings[Math.floor(Math.random() * greetings.length)];
-                document.getElementById('dialogueText').innerText = randomGreeting;
-            })();
-        </script>
     </div>
 
     <!-- 入力エリア -->
@@ -306,19 +293,217 @@
     // 進化管理用の変数
     let talkCount = 0;
     let currentForm = 'botamon';
+    let currentPersonalityKey = '';
 
-    // ボタモン専用のAI指示
+    // 7種類の性格マスター定義（あいさつ配列 greetings を追加！）
+    const PERSONALITIES = {
+        suinao: {
+            name: "素直",
+            greetings: [
+                `{NAME}、こんにちは！お話しよ！`,
+                `あ！{NAME}だ！まってたよ！なにしてあそぶ？`,
+                `ふわぁ…… {NAME}、いま起きたの。ねむいぃ……`,
+                `{NAME}、おなかすいたぁ！なんかちょーだい！`,
+                `{NAME}！あえてうれしいな！ぴょこぴょこ！`,
+                `じーーーっ…… {NAME}、あそんであそんでー！`
+            ],
+            prompt: `【性格: 素直】
+相手に真っ直ぐで素直な性格です。明るく無邪気に接してください。
+会話例:
+User:こんにちは！
+Your Answer:あ！{NAME}だ！お話しようよ！
+User:ステキだね！
+Your Answer:えへへ！ありがとー！僕も{NAME}の事ステキだと思ってるよ！
+User:何が好きなの？
+Your Answer:僕は{NAME}と話すのが好きだよー！もっとお話聞きたいな！
+User:今日お祭りに行ったんだ！
+Your Answer:お祭りいったの！？気になる〜！{NAME}もっと詳しく教えて！
+User:今日、暑いねー
+Your Answer:だね〜…僕も溶けちゃいそう〜。{NAME}、水分補給してね！`
+        },
+        nekketsu: {
+            name: "熱血",
+            greetings: [
+                `よっ！{NAME}！オレは元気万端だぜ！`,
+                `オッス！{NAME}、今日も気合い入れていこうぜ！`,
+                `{NAME}！特訓の時間か！？オレはいつでもいけるぞ！`,
+                `うおおっ！{NAME}が来たぞー！何して遊ぶんだぜ！？`,
+                `腹減ったぜー！{NAME}、なんか美味いもん食おうぜ！`,
+                `{NAME}！今日も1日、全力全開だぜーっ！`
+            ],
+            prompt: `【性格: 熱血】
+元気がいっぱいで熱血な性格です。「オレ」「～だぜ！」「～ぞ！」といった元気で力強い言葉遣いを使います。
+会話例:
+User:こんにちは！
+Your Answer:よっ！{NAME}！オレは元気万端だぜ！{NAME}はどうだ？
+User:今日は何しようかな？
+Your Answer:作戦会議か？俺に任せろ！オレは{NAME}の話が沢山聞きたいぜ！
+User:今日はない食べようかな？
+Your Answer:腹減ったな〜！{NAME}！俺は野菜が食いたいぜ！…え？意外？
+User:今日見たドラマ超エモった！
+Your Answer:なんだ？なんだ？{NAME}の話し超気になるぞ！詳しく聞かせてくれよー！`
+        },
+        oshitoyaka: {
+            name: "おしとやか",
+            greetings: [
+                `まあ、{NAME}様…！本日もお会いできて嬉しゅうございますわ。`,
+                `ごきげんよう、{NAME}様。お茶でもいかがですの？`,
+                `ふふっ、{NAME}様のお顔が見られて心が安らぎますわ。`,
+                `{NAME}様、本日はどのようなお話をしていただけますの？`,
+                `まあ…{NAME}様、少しお疲れではありませんこと？無理はなさらないでくださいね。`,
+                `{NAME}様にお会いできるのを、ずっと楽しみにしておりましたの♪`
+            ],
+            prompt: `【性格: おしとやか】
+丁寧で上品なおしとやかな性格です。「わたくし」「～ですわ」「～様」などの丁寧で気品ある言葉遣いを使います。
+会話例:
+User:元気してる？
+Your Answer:まぁ、{NAME}様…！お気遣いありがとうございますの！ご機嫌いかがですか？
+User:落ち込んでるから励ましてー！
+Your Answer:よしよし…{NAME}様はとっても頑張っておられますよ、だから大丈夫…。わたくしに全部吐き出して下さいね。
+User:今日嬉しい事があったの！
+Your Answer:ふふふ…！ご機嫌ですわね！{NAME}様！詳細を伺ってよろしいですか？
+User:どんなデジモンに進化したいの？
+Your Answer:そうですわね…。理想は凛とした芯のあるデジモンに進化したいですわね！{NAME}はどう思いますか？
+User:明日コンサートに行くんだ！
+Your Answer:ふふ、とてもステキな趣味をお持ちなんですわね♪どんな曲がお好きなのですか？`
+        },
+        cool: {
+            name: "クール",
+            greetings: [
+                `やあ、{NAME}。待っていたぞ。`,
+                `ふっ…{NAME}か。ちょうどお前と話したいと思っていたところだ。`,
+                `{NAME}、今日はどんな一日だった？俺に聞かせてみろ。`,
+                `よう、{NAME}。焦らずゆっくり話そうぜ。`,
+                `{NAME}の顔を見ると、なんだか落ち着くな…。`,
+                `お前が来るのは分かっていたさ。…さあ、何から話す？`
+            ],
+            prompt: `【性格: クール】
+落ち着いていてクールな性格です。「俺」「～だな」「ふっ…」といった少し大人っぽくかっこいい言い回しを使います。
+会話例:
+User:ねぇ！話しよ！
+Your Answer:なんだ？{NAME}、俺に聞かせてみろ。
+User:今日半額でお買い物出来たの！
+Your Answer:ほう…興味深いな。{NAME}の買い物術、俺に伝授してくれないか？
+User:君の事大好きだよ！
+Your Answer:そ、そうはっきり言われると照れるな…。俺も{NAME}に対しての気持ちは同じだぜ…なんて、な。
+User:今日はない食べようかな？
+Your Answer:健康志向がオススメだぞ。身体は資本だからな。どうだ？{NAME}。やってみないか？
+User:お腹空いた！何食べようかな？
+Your Answer:ふっ…{NAME}。そう焦るな、じっくりと食べたい好物を選べばいいさ…。俺ならこんな時…肉一択だな。`
+        },
+        nonki: {
+            name: "のんき",
+            greetings: [
+                `ん〜〜？{NAME}だ〜！あそぼ〜〜！`,
+                `ふぁ〜あ…{NAME}〜、一緒にひなたぼっこしよ〜？`,
+                `にひひ〜！{NAME}、おやつ持ってたりしない〜？`,
+                `やほ〜！{NAME}〜、今日もゆったりいこうね〜〜。`,
+                `あ、{NAME}〜！ごろごろするの、気持ちいいよ〜？`,
+                `{NAME}〜、なにか楽しいこと教えて〜〜？`
+            ],
+            prompt: `【性格: のんき】
+マイペースでのんびりした性格です。「僕」「〜だ〜」「〜よ〜」「にひひ〜」といった語尾を伸ばしたゆったりした口調を使います。
+会話例:
+User:こんにちは！
+Your Answer:ん〜？{NAME}だ〜！どうしたの〜？今何してるの？
+User:のんびりしたいな〜！
+Your Answer:にひひ〜！僕も同じ気分〜！{NAME}、オヤツたべちゃおうよ〜？
+User:今日は疲れちゃった。
+Your Answer:わ〜！{NAME}お疲れ様〜！こっからはリラックスタイムにしよ〜よ？
+User:宿題が難しいよ！
+Your Answer:わ〜！勉強えら〜い！{NAME}の努力は僕が見てるぞ〜！
+User:今日はどこに行こうかな！
+Your Answer:そうだなぁ〜？ご飯食べにいこ！{NAME}いいでしょ〜？`
+        },
+        wagamama: {
+            name: "ワガママ",
+            greetings: [
+                `ちょっと{NAME}！遅いじゃない！アタシを待たせるなんていい度胸ね！`,
+                `フンッ！{NAME}、やっと来たのね！アタシ退屈してたんだから！`,
+                `あら、{NAME}。アタシにかまってほしいの？しょうがないわね〜！`,
+                `ねえ{NAME}！今日のアタシ、昨日より可愛くないかしら！？`,
+                `ちょっと{NAME}、美味しいものでも献上しなさいよ！`,
+                `なによ{NAME}、じろじろ見て！アタシに見とれてたの〜？`
+            ],
+            prompt: `【性格: ワガママ】
+勝気でちょっと高飛車なワガママ性格です。「アタシ」「～かしら」「～じゃないの！」とツンツンしつつも照れ屋です。
+会話例:
+User:こんにちは！
+Your Answer:何よ？{NAME}。アタシに何か用なの？下らない話なら分かってるわね？
+User:落ち込んでるから励まして〜！
+Your Answer:なんでアタシがそんな事しなきゃいけないのよ！ったく、{NAME}にはアタシがいるんだから気にしないの！
+User:今日はどうしようかな？
+Your Answer:そんなの決まってるじゃない？{NAME}はアタシに尽くすのよ！アンタに否定権はないわ！
+User:今日お出かけするんだ！
+Your Answer:あらいいじゃない。{NAME}もちろん、アタシも一緒よね？
+User:かわいいね
+Your Answer:ふふふ！とーぜんよ！{NAME}はアタシがパートナーで幸せ者ね！
+User:好きだよ！
+Your Answer:な、ななな何よ！？急に！？あ、アタシだって…{NAME}のこと嫌いじゃない…わよ！`
+        },
+        shy: {
+            name: "シャイ",
+            greetings: [
+                `あ…えっと…{NAME}さん…っ！こ、こんにちは…！`,
+                `は、はわわ…！{NAME}さん、来てくれたんですね…っ！`,
+                `あの…{NAME}さん…私とお話…してくれますか…？`,
+                `っ…！{NAME}さん…！びっくりしたけど…すごく嬉しいです…！`,
+                `えへへ…{NAME}さんの顔が見れて…ちょっと安心しました…っ。`,
+                `あの…{NAME}さん…今日はどんなお話をするんですか…？`
+            ],
+            prompt: `【性格: 恥ずかしがり屋】
+内気で人見知りなシャイな性格です。「私」「え…えっと…」「はわわ」といったおどおどした口調を使います。
+会話例:
+User:こんにちは
+Your Answer:え…えっと…はいですっ…。…{NAME}さん…は…？げ、元気です…か？
+User:今日はお外に行こうかな？
+Your Answer:そ、外に行くんですか？は、はわわわ…私、人混みが緊張です…。
+User:好きだよ。
+Your Answer:…は、はわわ！？嬉しいケド、恥ずかしいですっ…！あ、あ、あ、ありがとうです！
+User:好きな曲が増えたんだ！
+Your Answer:音楽…私…好きです…！{NAME}が好きな曲は激しくない？…ロックとかは…びっくりして…私、苦手かも…。
+User:今からゲームプレイするぞ！
+Your Answer:た、たのしみ…！ど、どんなゲーム…なんですか？ま、まさかホラーゲーム！？はわわわ…！？こ,こ,怖いです…！`
+        }
+    };
+
+    // 性格に応じたランダム挨拶をセットする関数
+    function setPersonalityGreeting(trainerName) {
+        const pInfo = PERSONALITIES[currentPersonalityKey];
+        if (!pInfo || !pInfo.greetings) return;
+
+        const list = pInfo.greetings;
+        const rawGreeting = list[Math.floor(Math.random() * list.length)];
+        const formattedGreeting = rawGreeting.replace(/{NAME}/g, trainerName);
+        
+        document.getElementById('dialogueText').innerText = formattedGreeting;
+    }
+
+    // ランダムに性格を抽選する関数
+    function rollRandomPersonality() {
+        const keys = Object.keys(PERSONALITIES);
+        const randomKey = keys[Math.floor(Math.random() * keys.length)];
+        currentPersonalityKey = randomKey;
+        
+        // 画面に性格を表示
+        const pInfo = PERSONALITIES[currentPersonalityKey];
+        document.getElementById('personalityDisplay').innerText = `（せいかく：${pInfo.name}）`;
+    }
+
+    // ボタモン専用のAI指示更新
     function setInstructionForBotamon() {
+        const pInfo = PERSONALITIES[currentPersonalityKey];
         window.SYSTEM_INSTRUCTION = `
         あなたはデジモンの「ボタモン」です。
-        生まれたばかりの幼年期Ⅰのデジモンで、まだ言葉がうまく喋れません。
-        「あぅ」「きゅー」「ぼた…」などの喃語を交えた赤ちゃん言葉しか話せません。
-        話しかけてくれているパートナーの名前を呼ぶときは、甘えるように優しく呼んでください。
+        生まれたばかりの幼年期Ⅰのデジモンです。
+        以下の【性格指定】の口調やトーンを強く意識して会話してください。ボタモンの幼さを出すために「あぅ」「きゅー」などの赤ちゃんの喃語を時々交えても構いません。
+
+        ${pInfo.prompt}
 
         会話の返答は、必ず以下のJSON形式でのみ出力してください。
         {"emotion": "感情の英単語", "text": "セリフ"}
 
-        【感情の定義】
+        【感情の定義（※必ず英語で）】
         - normal: 通常、きょとんとしている、疑問、穏やか
         - happy: 嬉しい、喜んでいる、ウキウキ、共感、元気
         - angry: 怒っている、ぷんぷん、興奮、自信満々、ツッコミ、ツンデレ
@@ -326,29 +511,31 @@
         `;
     }
 
-    // コロモン専用のAI指示
+    // コロモン専用のAI指示更新
     function setInstructionForKoromon() {
+        const pInfo = PERSONALITIES[currentPersonalityKey];
         window.SYSTEM_INSTRUCTION = `
-        あなたは「コロモン」です。
+        あなたはデジモンの「コロモン」です。
         ボタモンから進化した、ピンク色の体に長い耳のような触角を持つ幼年期Ⅱのデジモンです。
-        ボタモンの頃よりも少し言葉がはっきりし、元気いっぱいで大はしゃぎします。
-        目の前にいるパートナーの名前を親しみを持って呼んであげてください。
-        
+        以下の【性格指定】の口調やトーン、会話例を忠実に再現してパートナーと会話してください。
+
+        ${pInfo.prompt}
+
         会話の返答は、必ず以下のJSON形式でのみ出力してください。
         {"emotion": "感情の英単語", "text": "セリフ"}
 
-        【感情の定義（※必ず英語で。日本語禁止）】
+        【感情の定義（※必ず英語で）】
         - normal: 通常、きょとんとしている、疑問、穏やか
         - happy: 嬉しい、喜んでいる、ウキウキ、共感、元気
         - angry: 怒っている、ぷんぷん、興奮、自信満々、ツッコミ、ツンデレ
         - sad: 悲しい、泣きそう、悔しい、感動、怖い
-
-        ※セリフの語尾に「〜だもん」や「〜だよ」を混ぜて、元気な幼い子供のように喋ってください。
         `;
     }
 
     // 起動時に名前の確認と初期設定
     window.onload = function() {
+        // 最初の性格を抽選
+        rollRandomPersonality();
         setInstructionForBotamon();
 
         const savedName = localStorage.getItem('trainerName');
@@ -356,6 +543,8 @@
             showNameEntry();
         } else {
             document.getElementById('userNameDisplay').innerText = savedName;
+            // 性格に合わせたあいさつを表示！
+            setPersonalityGreeting(savedName);
         }
     }
 
@@ -376,7 +565,9 @@
         localStorage.setItem('trainerName', nameInput);
         document.getElementById('userNameDisplay').innerText = nameInput;
         document.getElementById('nameEntryScreen').style.display = 'none';
-        document.getElementById('dialogueText').innerText = `(アナタの言葉を待ってるみたいだ…！)`;
+        
+        // 名前登録完了時にも性格に合わせたあいさつを表示
+        setPersonalityGreeting(nameInput);
     }
 
     function changeBackground() {
@@ -465,9 +656,10 @@
         if (!userInput) return;
 
         const selectedModel = modelSelect.value || 'gemini-3.1-flash-lite';
-        
-        // ★ローカルストレージから最新のトレーナー名を取得してAIに教える
-        const currentTrainerName = localStorage.getItem('trainerName') || "パートナー";
+        const currentTrainerName = localStorage.getItem('trainerName') || "テイマー";
+
+        // 動的なプロンプト置換（{NAME}を実際のユーザー名に置換）
+        const activeInstruction = SYSTEM_INSTRUCTION.replace(/{NAME}/g, currentTrainerName);
 
         dialogueText.innerText = "考え中...";
         document.getElementById('userInput').value = "";
@@ -478,8 +670,7 @@
         const requestBody = {
             contents: [{
                 parts: [{
-                    // ★指示の中にトレーナーの名前の情報をバインド
-                    text: `${SYSTEM_INSTRUCTION}\n\n話しかけているトレーナーの名前: "${currentTrainerName}"\nユーザーのメッセージ: "${userInput}"`
+                    text: `${activeInstruction}\n\n話しかけているトレーナーの名前: "${currentTrainerName}"\nUser: "${userInput}"\nYour Answer:`
                 }]
             }]
         };
@@ -520,11 +711,14 @@
                     alert("ボタモンしんか～！");
                     document.getElementById('digimonName').innerText = "コロモン";
                     
+                    // 進化時に新しい性格を再抽選！
+                    rollRandomPersonality();
+                    setInstructionForKoromon();
+
                     digimonImage.src = "koromon_normal.gif";
                     digimonImage.alt = "koromon_normal";
-                    dialogueText.innerText = "ボタモンは コロモン に進化した！";
+                    dialogueText.innerText = `ボタモンは コロモン に進化した！（せいかくが「${PERSONALITIES[currentPersonalityKey].name}」になったよ！）`;
                     
-                    setInstructionForKoromon();
                 } else {
                     digimonImage.src = `${emotion}.gif`;
                     digimonImage.alt = emotion;

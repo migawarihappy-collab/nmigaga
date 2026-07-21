@@ -308,6 +308,30 @@
         yuki_agumon: "ユキアグモン"
     };
 
+
+// デジモンごとの詳細設定マスター定義
+    const DIGIMON_DETAILS = {
+        botamon: "生まれたての全身が黒い繊毛で覆われた、黄色い目を持つ生まれたてのデジモンです。まだ生まれたてです。",
+
+
+
+        koromon: "ボタモンから進化した、ピンク色の体に長い耳のような触角を持つ丸っこい幼年期Ⅱのデジモンです。",
+
+
+
+        agumon: "コロモンから進化した黄色い恐竜の子供みたいな成長期のデジモンです。必殺技は口から火炎玉を吐き出す”ベビーフレイム”です。",
+
+
+        agumon_black: "コロモンから進化した黒い恐竜の子供みたいな成長期のデジモンです。必殺技は口から連続火炎を吐き出す”スピットファイア”です。",
+
+
+
+        yuki_agumon: "コロモンから進化した白い恐竜の子供みたいな成長期のデジモンです。必殺技は口から小さな吹雪を吐き出す”リトルブリザード”です。"
+    };
+
+
+
+
     // 7種類の性格マスター定義
     const PERSONALITIES = {
         suinao: {
@@ -623,7 +647,15 @@ ${pInfo.prompt}
                 emotionCounts[emotion]++;
             }
 
+
+
+
+
             // --- 進化判定ロジック ---
+
+
+
+
             // 1. ボタモン ➔ コロモン（５回）
             if (currentForm === 'botamon' && talkCount >= 5) {
                 currentForm = 'koromon';
@@ -640,6 +672,10 @@ ${pInfo.prompt}
                 talkCount = 0;
                 emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
             }
+
+
+
+
             // 2. コロモン ➔ アグモン分岐（10回）
             else if (currentForm === 'koromon' && talkCount >= 10) {
                 checkEvolution();

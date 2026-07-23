@@ -30,11 +30,11 @@
             width: 95%;
             max-width: 450px;
             height: 95%;
-            max-height: 650px;
+            max-height: 700px;
             background: #333;
             border: 4px solid #fff;
             border-radius: 8px;
-            padding: 15px;
+            padding: 12px;
             box-shadow: 0 0 15px rgba(0,0,0,0.5);
             text-align: center;
             display: flex;
@@ -74,12 +74,12 @@
 
         /* 育成画面のパーツ */
         .api-setting {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-size: 11px;
             color: #aaa;
             display: flex;
             flex-direction: column;
-            gap: 5px;
+            gap: 3px;
             align-items: center;
         }
         .check-btn {
@@ -96,7 +96,7 @@
             font-size: 12px;
         }
         .bg-selector-container {
-            margin-bottom: 10px;
+            margin-bottom: 5px;
             font-size: 12px;
             display: flex;
             justify-content: center;
@@ -117,14 +117,46 @@
             font-size: 10px;
         }
 
+        /* お世話コマンドエリア（背景の上） */
+        .care-panel {
+            display: flex;
+            justify-content: space-between;
+            gap: 4px;
+            margin-bottom: 4px;
+        }
+        .care-btn {
+            flex: 1;
+            padding: 6px 2px;
+            font-size: 10px;
+            font-family: 'DotGothic16', sans-serif;
+            background: #555;
+            color: #fff;
+            border: 2px solid #888;
+            border-radius: 4px;
+            cursor: pointer;
+            opacity: 0.3;          /* 普段は半透明 */
+            pointer-events: none;   /* 普段は押せない */
+            transition: opacity 0.3s, background 0.2s;
+        }
+       .care-btn.active {
+            opacity: 1.0;          /* 5回達成でくっきり */
+            pointer-events: auto;   /* 押せるようになる */
+            background: #007acc;
+            animation: pulseBtn 1s infinite alternate;
+        }
+        @keyframes pulseBtn {
+            0% { border-color: #fff; }
+            100% { border-color: #ffcc00; }
+        }
+
         /* 表示エリア */
         .digimon-box {
             flex-grow: 1;
-            min-height: 150px;
+            min-height: 130px;
             display: flex;
             justify-content: center;
             align-items: center;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             border: 2px inset #555;
             image-rendering: pixelated;
             background: #444; 
@@ -136,13 +168,31 @@
             overflow: hidden;
         }
         
+        /* 通常歩行状態のデジモン画像 */
         .digimon-img {
-            max-height: 100px;
+            max-height: 90px;
             object-fit: contain;
             position: absolute;
             bottom: 10px;
             animation: walkPattern 8s infinite ease-in-out;
             animation-delay: 0.1s;
+        }
+
+        /* 3秒演出用の左右並びコンテナ */
+        .action-container {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 10px;
+            gap: 20px;
+            background: rgba(0,0,0,0.1); /* 演出時の薄い背景 */
+        }
+        .action-digimon-img, .action-effect-img {
+            max-height: 80px;
+            object-fit: contain;
+            image-rendering: pixelated;
         }
 
         @keyframes walkPattern {
@@ -162,21 +212,21 @@
         .dialogue-box {
             background: #000;
             border: 2px solid #888;
-            padding: 10px;
-            min-height: 80px;
+            padding: 8px 10px;
+            min-height: 70px;
             text-align: left;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             line-height: 1.4;
-            font-size: 15px; 
+            font-size: 14px; 
             font-family: 'DotGothic16', sans-serif;
         }
         .input-box {
             display: flex;
             gap: 10px;
-            margin-bottom: 10px;
+            margin-bottom: 5px;
         }
         input[type="text"], input[type="password"] {
-            padding: 10px;
+            padding: 8px;
             border: 2px solid #888;
             background: #111;
             color: #fff;
@@ -187,7 +237,7 @@
             flex-grow: 1;
         }
         button {
-            padding: 10px 15px;
+            padding: 8px 12px;
             background: #007acc;
             color: #fff;
             border: none;
@@ -263,9 +313,24 @@
         </div>
     </div>
 
+    <!-- お世話コマンドパネル（背景ウィンドウのすぐ上） -->
+    <div class="care-panel">
+        <button id="careMeal" class="care-btn" onclick="executeCare('happy', 5, 'eat_animation.gif', 'ごはんをもらって<span style=&quot;color: #ff66aa; font-weight: bold;&quot;>【歓喜】</span>の感情値が上がった！')">🍙 エサ</button>
+        <button id="careTrain" class="care-btn" onclick="executeCare('normal', 5, 'Training_animation.gif', 'トレーニングを頑張って<span style=&quot;color: #00ccff; font-weight: bold;&quot;>【信頼】</span>の感情値が上がった！')">💪 トレーニング </button>
+        <button id="careDefense" class="care-btn" onclick="executeCare('angry', 5, 'battle_animation.gif', 'ネットワークウィルスを撃退して<span style=&quot;color: #ff4444; font-weight: bold;&quot;>【激情】</span>の感情値が上がった！')">🛡️ ウイルス退治</button>
+        <button id="careData" class="care-btn" onclick="executeCare('sad', 5, 'deta_animation.gif', 'ネットワークデータ収集をして<span style=&quot;color: #aa66ff; font-weight: bold;&quot;>【感受】</span>の感情値が上がった！')">💻 収集</button>
+    </div>
+
     <!-- デジモン表示エリア -->
     <div class="digimon-box" id="digimonBox">
+        <!-- 通常（歩行アニメーション表示） -->
         <img id="digimonImage" src="normal.gif" alt="normal" class="digimon-img" loading="eager">
+
+        <!-- 4秒お世話演出用（非表示状態がデフォルト） -->
+        <div id="actionContainer" class="action-container" style="display: none;">
+            <img id="actionDigimonImg" class="action-digimon-img" src="" alt="digimon">
+            <img id="actionEffectImg" class="action-effect-img" src="" alt="action">
+        </div>
     </div>
 
     <!-- セリフ窓 -->
@@ -273,6 +338,7 @@
         <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;">
             <span id="digimonName">ボタモン</span>
             <span id="personalityDisplay" style="font-size: 10px; color: #aaa; margin-left: 5px;"></span>
+            <span id="careCounterDisplay" style="font-size: 10px; color: #00ffcc; float: right;">コマンド解禁まであと: 0/5</span>
         </div>
         <div id="dialogueText"></div>
     </div>
@@ -280,7 +346,7 @@
     <!-- 入力エリア -->
     <div class="input-box">
         <input type="text" id="userInput" placeholder="メッセージを入力..." onkeypress="if(event.key === 'Enter') sendMessage()">
-        <button onclick="sendMessage()">送信</button>
+        <button id="sendBtn" onclick="sendMessage()">送信</button>
     </div>
 
     <div id="modelListLog"></div>
@@ -289,8 +355,10 @@
 
 <script>
     // --- 状態変数 ---
-    let talkCount = 0;
-    let currentForm = 'botamon'; // 'botamon', 'koromon', 'agumon', 'agumon_black', 'yuki_agumon'
+    let talkCount = 0;          // 進化用カウント（累計会話数）
+    let careCount = 0;          // お世話解放用カウンター（10回で解放）
+    let isPerformingAction = false; // アクション演出中フラグ
+    let currentForm = 'botamon'; 
     let currentPersonalityKey = '';
     let emotionCounts = {
         happy: 0,
@@ -308,285 +376,81 @@
         yuki_agumon: "ユキアグモン"
     };
 
-
-// デジモンごとの詳細設定マスター定義
     const DIGIMON_DETAILS = {
         botamon: "生まれたての全身が黒い繊毛で覆われた、黄色い目を持つ生まれたてのデジモンです。まだ生まれたてです。",
-
-
-
         koromon: "ボタモンから進化した、ピンク色の体に長い耳のような触角を持つ丸っこい幼年期Ⅱのデジモンです。",
-
-
-
         agumon: "コロモンから進化した黄色い恐竜の子供みたいな成長期のデジモンです。必殺技は口から火炎玉を吐き出す”ベビーフレイム”です。",
-
-
         agumon_black: "コロモンから進化した黒い恐竜の子供みたいな成長期のデジモンです。必殺技は口から連続火炎を吐き出す”スピットファイア”です。",
-
-
-
         yuki_agumon: "コロモンから進化した白い恐竜の子供みたいな成長期のデジモンです。必殺技は口から小さな吹雪を吐き出す”リトルブリザード”です。"
     };
 
-
-
-
-    // ８種類の性格マスター定義
     const PERSONALITIES = {
         suinao: {
             name: "素直",
-            greetings: [
-                `{NAME}、こんにちは！お話しよ！`,
-                `あ！{NAME}だ！まってたよ！なにしてあそぶ？`,
-                `ふわぁ…… {NAME}、いま起きたの。ねむいぃ……`,
-                `{NAME}、おなかすいたぁ！なんかちょーだい！`,
-                `{NAME}！あえてうれしいな！ぴょこぴょこ！`,
-                `じーーーっ…… {NAME}、あそんであそんでー！`
-            ],
-
-
-            prompt: `【性格: 素直】
-相手に真っ直ぐで素直な性格です。明るく無邪気に接してください。
-会話例:
-User:こんにちは！
-Your Answer:あ！{NAME}だ！お話しようよ！
-User:ステキだね！
-Your Answer:えへへ！ありがとー！僕も{NAME}の事ステキだと思ってるよ！
-User:何が好きなの？
-Your Answer:僕は{NAME}と話すのが好きだよー！もっとお話聞きたいな！
-User:今日お祭りに行ったんだ！
-Your Answer:お祭りいったの！？気になる〜！{NAME}もっと詳しく教えて！
-User:今日、暑いねー
-Your Answer:だね〜…僕も溶けちゃいそう〜。{NAME}、水分補給してね！`
+            greetings: [`{NAME}、こんにちは！お話しよ！`, `あ！{NAME}だ！まってたよ！なにしてあそぶ？`, `ふわぁ…… {NAME}、いま起きたの。ねむいぃ……`, `{NAME}、おなかすいたぁ！なんかちょーだい！`, `{NAME}！あえてうれしいな！ぴょこぴょこ！`, `じーーーっ…… {NAME}、あそんであそんでー！`],
+            prompt: `【性格: 素直】相手に真っ直ぐで素直な性格です。明るく無邪気に接してください。`
         },
-
-
-
-
         nekketsu: {
             name: "熱血",
-            greetings: [
-                `よっ！{NAME}！オレは元気万端だぜ！`,
-                `オッス！{NAME}、今日も気合い入れていこうぜ！`,
-                `{NAME}！特訓の時間か！？オレはいつでもいけるぞ！`,
-                `うおおっ！{NAME}が来たぞー！何して遊ぶんだぜ！？`,
-                `腹減ったぜー！{NAME}、なんか美味いもん食おうぜ！`,
-                `{NAME}！今日も1日、全力全開だぜーっ！`
-            ],
-            prompt: `【性格: 熱血】
-元気がいっぱいで熱血な性格です。「オレ」「～だぜ！」「～ぞ！」といった元気で力強い言葉遣いを使います。
-会話例:
-User:こんにちは！
-Your Answer:よっ！{NAME}！オレは元気万端だぜ！{NAME}はどうだ？
-User:今日は何しようかな？
-Your Answer:作戦会議か？俺に任せろ！オレは{NAME}の話が沢山聞きたいぜ！
-User:今日はない食べようかな？
-Your Answer:腹減ったな〜！{NAME}！俺は野菜が食いたいぜ！…え？意外？
-User:今日見たドラマ超エモった！
-Your Answer:なんだ？なんだ？{NAME}の話し超気になるぞ！詳しく聞かせてくれよー！`
+            greetings: [`よっ！{NAME}！オレは元気万端だぜ！`, `オッス！{NAME}、今日も気合い入れていこうぜ！`, `{NAME}！特訓の時間か！？オレはいつでもいけるぞ！`, `うおおっ！{NAME}が来たぞ～！何して遊ぶんだぜ！？`, `腹減ったぜー！{NAME}、なんか美味いもん食おうぜ！`, `{NAME}！今日も1日、全力全開だぜーっ！`],
+            prompt: `【性格: 熱血】元気がいっぱいで熱血な性格です。「オレ」「～だぜ！」「～ぞ！」といった元気で力強い言葉遣いを使います。`
         },
-
-
-
-
-
         oshitoyaka: {
             name: "おしとやか",
-            greetings: [
-                `まあ、{NAME}様…！本日もお会いできて嬉しゅうございますわ。`,
-                `ごきげんよう、{NAME}様。お茶でもいかがですの？`,
-                `ふふっ、{NAME}様のお顔が見られて心が安らぎますわ。`,
-                `{NAME}様、本日はどのようなお話をしていただけますの？`,
-                `まあ…{NAME}様、少しお疲れではありませんこと？無理はなさらないでくださいね。`,
-                `{NAME}様にお会いできるのを、ずっと楽しみにしておりましたの♪`
-            ],
-
-
-            prompt: `【性格: おしとやか】
-丁寧で上品なおしとやかな性格です。「わたくし」「～ですわ」「～様」などの丁寧で気品ある言葉遣いを使います。
-会話例:
-User:元気してる？
-Your Answer:まぁ、{NAME}様…！お気遣いありがとうございますの！ご機嫌いかがですか？
-User:落ち込んでるから励ましてー！
-Your Answer:よしよし…{NAME}様はとっても頑張っておられますよ、だから大丈夫…。わたくしに全部吐き出して下さいね。
-User:今日嬉しい事があったの！
-Your Answer:ふふふ…！ご機嫌ですわね！{NAME}様！詳細を伺ってよろしいですか？
-User:どんなデジモンに進化したいの？
-Your Answer:そうですわね…。理想は凛とした芯のあるデジモンに進化したいですわね！{NAME}はどう思いますか？
-User:明日コンサートに行くんだ！
-Your Answer:ふふ、とてもステキな趣味をお持ちなんですわね♪どんな曲がお好きなのですか？`
+            greetings: [`まあ、{NAME}様…！本日もお会いできて嬉しゅうございますわ。`, `ごきげんよう、{NAME}様。お茶でもいかがですの？`, `ふふっ、{NAME}様のお顔が見られて心が安らぎますわ。`, `{NAME}様、本日はどのようなお話をしていただけますの？`, `まあ…{NAME}様、少しお疲れではありませんこと？無理はなさらないでくださいね。`, `{NAME}様にお会いできるのを、ずっと楽しみにしておりましたの♪`],
+            prompt: `【性格: おしとやか】丁寧で上品なおしとやかな性格です。「わたくし」「～ですわ」「～様」などの丁寧で気品ある言葉遣いを使います。`
         },
-
-
-
-
         cool: {
             name: "クール",
-            greetings: [
-                `やあ、{NAME}。待っていたぞ。`,
-                `ふっ…{NAME}か。ちょうどお前と話したいと思っていたところだ。`,
-                `{NAME}、今日はどんな一日だった？俺に聞かせてみろ。`,
-                `よう、{NAME}。焦らずゆっくり話そうぜ。`,
-                `{NAME}の顔を見ると、なんだか落ち着くな…。`,
-                `お前が来るのは分かっていたさ。…さあ、何から話す？`
-            ],
-            prompt: `【性格: クール】
-落ち着いていてクールな性格です。「俺」「～だな」「ふっ…」といった少し大人っぽくかっこいい言い回しを使います。
-会話例:
-User:ねぇ！話しよ！
-Your Answer:なんだ？{NAME}、俺に聞かせてみろ。
-User:今日半額でお買い物出来たの！
-Your Answer:ほう…興味深いな。{NAME}の買い物術、俺に伝授してくれないか？
-User:君の事大好きだよ！
-Your Answer:そ、そうはっきり言われると照れるな…。俺も{NAME}に対しての気持ちは同じだぜ…なんて、な。
-User:今日はない食べようかな？
-Your Answer:健康志向がオススメだぞ。身体は資本だからな。どうだ？{NAME}。やってみないか？
-User:お腹空いた！何食べようかな？
-Your Answer:ふっ…{NAME}。そう焦るな、じっくりと食べたい好物を選べばいいさ…。俺ならこんな時…肉一択だな。`
+            greetings: [`やあ、{NAME}。待っていたぞ。`, `ふっ…{NAME}か。ちょうどお前と話したいと思っていたところだ。`, `{NAME}、今日はどんな一日だった？俺に聞かせてみろ。`, `よう、{NAME}。焦らずゆっくり話そうぜ。`, `{NAME}の顔を見ると、なんだか落ち着くな…。`, `お前が来るのは分かっていたさ。…さあ、何から話す？`],
+            prompt: `【性格: クール】落ち着いていてクールな性格です。「俺」「～だな」「ふっ…」といった少し大人っぽくかっこいい言い回しを使います。`
         },
-
-
-
         nonki: {
             name: "のんき",
-            greetings: [
-                `ん〜〜？{NAME}だ〜！あそぼ〜〜！`,
-                `ふぁ〜あ…{NAME}〜、一緒にひなたぼっこしよ〜？`,
-                `にひひ〜！{NAME}、おやつ持ってたりしない〜？`,
-                `やほ〜！{NAME}〜、今日もゆったりいこうね〜〜。`,
-                `あ、{NAME}〜！ごろごろするの、気持ちいいよ〜？`,
-                `{NAME}〜、なにか楽しいこと教えて〜〜？`
-            ],
-            prompt: `【性格: のんき】
-マイペースでのんびりした性格です。「僕」「〜だ〜」「〜よ〜」「にひひ〜」といった語尾を伸ばしたゆったりした口調を使います。
-会話例:
-User:こんにちは！
-Your Answer:ん〜？{NAME}だ〜！どうしたの〜？今何してるの？
-User:のんびりしたいな〜！
-Your Answer:にひひ〜！僕も同じ気分〜！{NAME}、オヤツたべちゃおうよ〜？
-User:今日は疲れちゃった。
-Your Answer:わ〜！{NAME}お疲れ様〜！こっからはリラックスタイムにしよ〜よ？
-User:宿題が難しいよ！
-Your Answer:わ〜！勉強えら〜い！{NAME}の努力は僕が見てるぞ〜！
-User:今日はどこに行こうかな！
-Your Answer:そうだなぁ〜？ご飯食べにいこ！{NAME}いいでしょ〜？`
+            greetings: [`ん〜〜？{NAME}だ〜！あそぼ〜〜！`, `ふぁ〜あ…{NAME}〜、一緒にひなたぼっこしよ〜？`, `にひひ〜！{NAME}、おやつ持ってたりしない〜？`, `やほ〜！{NAME}〜、今日もゆったりいこうね〜〜。`, `あ、{NAME}〜！ごろごろするの、気持ちいいよ〜？`, `{NAME}〜、なにか楽しいこと教えて〜〜？`],
+            prompt: `【性格: のんき】マイペースでのんびりした性格です。「僕」「〜だ〜」「〜よ〜」「にひひ〜」といった語尾を伸ばしたゆったりした口調を使います。`
         },
-
-
-
         wagamama: {
             name: "ワガママ",
-            greetings: [
-                `ちょっと{NAME}！遅いじゃない！アタシを待たせるなんていい度胸ね！`,
-                `フンッ！{NAME}、やっと来たのね！アタシ退屈してたんだから！`,
-                `あら{NAME}。どうせアタシにかまってほしいんでしょ？`,
-                `ねえ{NAME}！今日のアタシ、昨日より可愛くないかしら！？`,
-                `ちょっと{NAME}、美味しいものでも献上しなさいよ！`,
-                `なによ{NAME}、アタシに見惚れちゃったの～？ま、当然よね♪`
-            ],
-            prompt: `【性格: ワガママ】
-勝気でちょっと高飛車な性格です。「アタシ」「あれあれ～♡」「～かしら」「ざ～こ♡」「～じゃないの！」と誘惑的であったり、ツンツンしつつも照れ屋です。
-        会話例:
-User:こんにちは！
-Your Answer:何よ？{NAME}。アタシに何か用なの？下らない話なら分かってるわね？
-User:落ち込んでるから励まして〜！
-Your Answer:全く仕方ないんだから、{NAME}にはアタシがいるんだから気にしないの！
-User:今日はどうしようかな？
-Your Answer:そんなの決まってるじゃない？いついかなる時も{NAME}はアタシに尽くすのよ！とうぜんよね。
-User:今日お出かけするんだ！
-Your Answer:あらいいじゃない。{NAME}もちろん、アタシも一緒よね？異論は認めないわ。
-User:かわいいね
-Your Answer:ふふふ！とーぜんよ！{NAME}はアタシがパートナーで幸せ者ね！
-User:好きだよ！
-Your Answer:あ、アタシだって…{NAME}のこと嫌いじゃないわよっ…。`
+            greetings: [`ちょっと{NAME}！遅いじゃない！アタシを待たせるなんていい度胸ね！`, `フンッ！{NAME}、やっと来たのね！アタシ退屈してたんだから！`, `あら{NAME}。どうせアタシにかまってほしいんでしょ？`, `ねえ{NAME}！今日のアタシ、昨日より可愛くないかしら！？`, `ちょっと{NAME}、美味しいものでも献上しなさいよ！`, `なによ{NAME}、アタシに見惚れちゃったの～？ま、当然よね♪`],
+            prompt: `【性格: ワガママ】勝気でちょっと高飛車な性格です。「アタシ」「～かしら」「～じゃないの！」といったツンデレな口調を使います。`
         },
-
-
-
- mesugaki: {
+        mesugaki: {
             name: "メスガキ",
-            greetings: [
-                `あれれ～♡{NAME}だ～♡キャハハ♡`,
-                `{NAME}じゃ～ん♡何ナニ～？`,
-                `ノロマ{NAME}～♡来るの遅すぎ～♡`,
-                `やっときたの～？{NAME}、つまんな～い♡`,
-                `{NAME}、なにその反抗的な眼は～？`,
-                `超超退屈なんですけど～♡{NAME}遊んでよ～♡`,
-            ],
-            prompt: `【性格: メスガキ】
-気だるげで生意気な性格です。「ウチ」「オマエ」「あれあれ～♡」「～なの～♡」「ざ～こ♡」「～キャハハ♪」と誘惑的でぶりっ子な話し方が特徴的。
-        会話例:
-User:こんにちは！
-Your Answer:はいは～い♡{NAME}♡かわいいウチメロメロなのカナ～？
-User:落ち込んでるから励まして〜！
-Your Answer:ざ～こ♡ざ～こ♡{NAME}なんて落ち込むくらいならウチの魅力に負けちゃえ♡
-User:今日はどうしようかな？
-Your Answer:なら～♡ウチは{NAME}の退屈しのぎになってみてよ～？オマエには厳しいカナ♡
-User:今日お出かけするんだ！
-Your Answer:あれあれ～♡{NAME}、ウチの事無視してくの～？生意気～♡
-User:かわいいね
-Your Answer:当たり前じゃ～ん♡{NAME}ったら今更すぎ～♡
-User:好きだよ！
-Your Answer:あ、アタシだって…{NAME}のこと嫌いじゃないわよっ…。`
+            greetings: [`あれれ～♡{NAME}だ～♡キャハハ♡`, `{NAME}じゃ～ん♡何ナニ～？`, `ノロマ{NAME}～♡来るの遅すぎ～♡`, `やっときたの～？{NAME}、つまんな～い♡`, `{NAME}、なにその反抗的な眼は～？`, `超超退屈なんですけど～♡{NAME}遊んでよ～♡`],
+            prompt: `【性格: メスガキ】生意気で小悪魔な性格です。「ウチ」「オマエ」「ざ～こ♡」「キャハハ♡」といった口調を使います。`
         },
-
-
         shy: {
             name: "シャイ",
-            greetings: [
-                `あ…えっと…{NAME}さん…っ！こ、こんにちは…！`,
-                `は、はわわ…！{NAME}さん、来てくれたんですね…っ！`,
-                `あの…{NAME}さん…私とお話…してくれますか…？`,
-                `っ…！{NAME}さん…！びっくりしたけど…すごく嬉しいです…！`,
-                `えへへ…{NAME}さんの顔が見れて…ちょっと安心しました…っ。`,
-                `あの…{NAME}さん…今日はどんなお話をするんですか…？`
-            ],
-            prompt: `【性格: 恥ずかしがり屋】
-内気で人見知りなシャイな性格です。「私」「え…えっと…」「はわわ」といったおどおどした口調を使います。
-会話例:
-User:こんにちは
-Your Answer:え…えっと…はいですっ…。…{NAME}さん…は…？げ、元気です…か？
-User:今日はお外に行こうかな？
-Your Answer:そ、外に行くんですか？は、はわわわ…私、人混みが緊張です…。
-User:好きだよ。
-Your Answer:…は、はわわ！？嬉しいケド、恥ずかしいですっ…！あ、あ、あ、ありがとうです！
-User:好きな曲が増えたんだ！
-Your Answer:音楽…私…好きです…！{NAME}が好きな曲は激しくない？…ロックとかは…びっくりして…私、苦手かも…。
-User:今からゲームプレイするぞ！
-Your Answer:た、たのしみ…！ど、どんなゲーム…なんですか？ま、まさかホラーゲーム！？はわわわ…！？こ,こ,怖いです…！`  
- }
-    
-
-};
+            greetings: [`あ…えっと…{NAME}さん…っ！こ、こんにちは…！`, `は、はわわ…！{NAME}さん、来てくれたんですね…っ！`, `あの…{NAME}さん…私とお話…してくれますか…？`, `っ…！{NAME}さん…！びっくりしたけど…すごく嬉しいです…！`, `えへへ…{NAME}さんの顔が見れて…ちょっと安心しました…っ。`, `あの…{NAME}さん…今日はどんなお話をするんですか…？`],
+            prompt: `【性格: シャイ】内気で人見知りな性格です。「私」「え…えっと…」「はわわ」といったおどおどした口調を使います。`
+        }
+    };
 
     function setPersonalityGreeting(trainerName) {
         const pInfo = PERSONALITIES[currentPersonalityKey];
         if (!pInfo || !pInfo.greetings) return;
-
         const list = pInfo.greetings;
         const rawGreeting = list[Math.floor(Math.random() * list.length)];
-        const formattedGreeting = rawGreeting.replace(/{NAME}/g, trainerName);
-        
-        document.getElementById('dialogueText').innerText = formattedGreeting;
+        document.getElementById('dialogueText').innerText = rawGreeting.replace(/{NAME}/g, trainerName);
     }
 
     function rollRandomPersonality() {
         const keys = Object.keys(PERSONALITIES);
-        const randomKey = keys[Math.floor(Math.random() * keys.length)];
-        currentPersonalityKey = randomKey;
-        
-        const pInfo = PERSONALITIES[currentPersonalityKey];
-        document.getElementById('personalityDisplay').innerText = `（せいかく：${pInfo.name}）`;
+        currentPersonalityKey = keys[Math.floor(Math.random() * keys.length)];
+        document.getElementById('personalityDisplay').innerText = `（せいかく：${PERSONALITIES[currentPersonalityKey].name}）`;
     }
 
-    // 形態ごとのAIプロンプト更新
     function updateSystemInstruction() {
         const pInfo = PERSONALITIES[currentPersonalityKey];
         const name = DIGIMON_NAMES[currentForm] || "デジモン";
+        const detail = DIGIMON_DETAILS[currentForm] || "";
 
         window.SYSTEM_INSTRUCTION = `
 あなたのはデジモンの「${name}」です。
+【デジモン情報】
+${detail}
+
 以下の【性格指定】の口調やトーンを強く意識して会話してください。
 
 ${pInfo.prompt}
@@ -597,7 +461,7 @@ ${pInfo.prompt}
 【感情の定義（※必ず英語で）】
 - normal: 通常、きょとんとしている、疑問、穏やか
 - happy: 嬉しい、喜んでいる、ウキウキ、共感、元気
-- angry: 怒っている、ぷんぷん、興奮、自信満々、ツッコミ、ツンデレ
+- angry: 怒っている、ぷんぷん、興奮、自信満々、ツッコミ
 - sad: 悲しい、泣きそう、悔しい、感動、怖い
 `;
     }
@@ -605,7 +469,6 @@ ${pInfo.prompt}
     window.onload = function() {
         rollRandomPersonality();
         updateSystemInstruction();
-
         const savedName = localStorage.getItem('trainerName');
         if (!savedName) {
             showNameEntry();
@@ -613,14 +476,13 @@ ${pInfo.prompt}
             document.getElementById('userNameDisplay').innerText = savedName;
             setPersonalityGreeting(savedName);
         }
+        updateCareUI();
     }
 
     function showNameEntry() {
         document.getElementById('nameEntryScreen').style.display = 'flex';
         const savedName = localStorage.getItem('trainerName');
-        if (savedName) {
-            document.getElementById('nameInput').value = savedName;
-        }
+        if (savedName) document.getElementById('nameInput').value = savedName;
     }
 
     function saveName() {
@@ -632,20 +494,17 @@ ${pInfo.prompt}
         localStorage.setItem('trainerName', nameInput);
         document.getElementById('userNameDisplay').innerText = nameInput;
         document.getElementById('nameEntryScreen').style.display = 'none';
-        
         setPersonalityGreeting(nameInput);
     }
 
     function changeBackground() {
         const bgSelect = document.getElementById('bgSelect');
         const digimonBox = document.getElementById('digimonBox');
-        const selectedBg = bgSelect.value;
-
-        if (selectedBg === "") {
+        if (bgSelect.value === "") {
             digimonBox.style.background = "#444";
         } else {
             bgSelect.blur();
-            digimonBox.style.background = `url('${selectedBg}') no-repeat center`;
+            digimonBox.style.background = `url('${bgSelect.value}') no-repeat center`;
             digimonBox.style.backgroundSize = "cover";
         }
     }
@@ -701,8 +560,82 @@ ${pInfo.prompt}
         }
     }
 
-    // --- メッセージ送信処理 ---
+    // --- お世話コマンドの更新・状態制御　上画面のコマンド使えるようにできるやつ ---
+    function updateCareUI() {
+        const counterDisplay = document.getElementById('careCounterDisplay');
+        const buttons = [
+            document.getElementById('careMeal'),
+            document.getElementById('careTrain'),
+            document.getElementById('careDefense'),
+            document.getElementById('careData')
+        ];
+
+        if (careCount >= 5 && !isPerformingAction) {
+            counterDisplay.innerText = "お世話OK！";
+            counterDisplay.style.color = "#ffcc00";
+            buttons.forEach(btn => btn.classList.add('active'));
+        } else {
+            counterDisplay.innerText = `コマンド解放まで ${careCount}/5`;
+            counterDisplay.style.color = "#00ffcc";
+            buttons.forEach(btn => btn.classList.remove('active'));
+        }
+    }
+
+    // --- お世話アクション実行処理（アニメーション演出あり） ---
+    function executeCare(emotionKey, addAmount, actionGifName, messageText) {
+        if (careCount < 5 || isPerformingAction) return;
+
+        isPerformingAction = true;
+
+        // 指定された感情にカウントを＋5
+        emotionCounts[emotionKey] += addAmount;
+
+        // セリフの表示
+        document.getElementById('dialogueText').innerHTML = messageText;
+
+        // --- 画面を演出モードに切り替え ---
+        const digimonImage = document.getElementById('digimonImage');
+        const actionContainer = document.getElementById('actionContainer');
+        const actionDigimonImg = document.getElementById('actionDigimonImg');
+        const actionEffectImg = document.getElementById('actionEffectImg');
+
+        // 通常の歩行デジモンを隠す
+        digimonImage.style.display = 'none';
+
+        // 演出用の画像をセット（左：アクション用表情のデジモンGIF、右：指定のアクションGIF）
+        const digimonGifName = (currentForm === 'botamon') ? `${emotionKey}.gif` : `${currentForm}_${emotionKey}.gif`;
+        actionDigimonImg.src = digimonGifName;
+        actionEffectImg.src = actionGifName;
+
+        // 演出コンテナを表示
+        actionContainer.style.display = 'flex';
+
+        // カウントのリセット & ボタンを非活性に
+        careCount = 0;
+        updateCareUI();
+
+        // --- 4秒間演出を表示した後に元の歩行状態（normal）へ戻す ---
+        setTimeout(() => {
+            // 演出コンテナを隠す
+            actionContainer.style.display = 'none';
+
+            // 通常のデジモン画像をnormalにして復帰表示
+            const normalGifName = (currentForm === 'botamon') ? "normal.gif" : `${currentForm}_normal.gif`;
+            digimonImage.src = normalGifName;
+            digimonImage.style.display = 'block';
+
+            isPerformingAction = false;
+            updateCareUI();
+
+            // 演出終了後に進化判定チェック
+            checkEvolutionProgress();
+        }, 4000);// 4000ミリ秒（＝4秒）に書き換え
+    }
+
+// --- メッセージ送信処理 ---
     async function sendMessage() {
+        if (isPerformingAction) return; // 演出中は送信不可
+
         const apiKey = document.getElementById('apiKey').value.trim();
         const userInput = document.getElementById('userInput').value.trim();
         const dialogueText = document.getElementById('dialogueText');
@@ -720,9 +653,8 @@ ${pInfo.prompt}
         if (!userInput) return;
 
         const selectedModel = modelSelect.value || 'gemini-3.1-flash-lite';
-        const currentTrainerName = localStorage.getItem('trainerName') || "テイマー";
-
-        const activeInstruction = SYSTEM_INSTRUCTION.replace(/{NAME}/g, currentTrainerName);
+        const currentTrainerName = localStorage.getItem('trainerName') || "パートナー";
+        const activeInstruction = window.SYSTEM_INSTRUCTION.replace(/{NAME}/g, currentTrainerName);
 
         dialogueText.innerText = "考え中...";
         document.getElementById('userInput').value = "";
@@ -735,7 +667,18 @@ ${pInfo.prompt}
                 parts: [{
                     text: `${activeInstruction}\n\n話しかけているパートナーの名前: "${currentTrainerName}"\nUser: "${userInput}"\nYour Answer:`
                 }]
-            }]
+            }],
+            generationConfig: {
+                responseMimeType: "application/json",
+                responseSchema: {
+                    type: "OBJECT",
+                    properties: {
+                        emotion: { type: "STRING", enum: ["normal", "happy", "angry", "sad"] },
+                        text: { type: "STRING" }
+                    },
+                    required: ["emotion", "text"]
+                }
+            }
         };
 
         try {
@@ -751,68 +694,29 @@ ${pInfo.prompt}
             }
 
             const data = await response.json();
-            const rawText = data.candidates[0].content.parts[0].text.trim();
-            const cleanJsonText = rawText.replace(/```json|```/gi, "").trim();
-            
-            let result;
-            try {
-                result = JSON.parse(cleanJsonText);
-            } catch (jsonErr) {
-                throw new Error(`JSONの解析に失敗しました。`);
-            }
+            const result = JSON.parse(data.candidates[0].content.parts[0].text.trim());
 
-            dialogueText.innerText = result.text;
+            // 1. まず感情に対応する画像へ更新
             const emotion = result.emotion || 'normal';
-
-            // 画像ファイル名の決定処理
-            let gifFileName = "";
-            if (currentForm === 'botamon') {
-                gifFileName = `${emotion}.gif`;
-            } else {
-                gifFileName = `${currentForm}_${emotion}.gif`;
-            }
+            let gifFileName = (currentForm === 'botamon') ? `${emotion}.gif` : `${currentForm}_${emotion}.gif`;
             digimonImage.src = gifFileName;
-            digimonImage.alt = gifFileName;
 
-            // 感情カウントの加算
+            // 2. セリフテキストを表示（ユーザーの会話文なので safe な innerText を利用）
+            dialogueText.innerText = result.text;
+
+            // 3. カウント進行 & UI更新
             talkCount++;
+            if (careCount < 5) { // ※上限5に合わせて調整
+                careCount++;
+                updateCareUI();
+            }
+
             if (emotionCounts.hasOwnProperty(emotion)) {
                 emotionCounts[emotion]++;
             }
 
-
-
-
-
-            // --- 進化判定ロジック ---
-
-
-
-
-            // 1. ボタモン ➔ コロモン（５回）
-            if (currentForm === 'botamon' && talkCount >= 5) {
-                currentForm = 'koromon';
-                alert("ボタモンしんか～！");
-                document.getElementById('digimonName').innerText = DIGIMON_NAMES[currentForm];
-                
-                rollRandomPersonality();
-                updateSystemInstruction();
-
-                digimonImage.src = "koromon_normal.gif";
-                dialogueText.innerText = `ボタモンは コロモン に進化した！（せいかくが「${PERSONALITIES[currentPersonalityKey].name}」になったよ！）`;
-                
-                // コロモン用にカウントをリセット
-                talkCount = 0;
-                emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
-            }
-
-
-
-
-            // 2. コロモン ➔ アグモン分岐（５回）
-            else if (currentForm === 'koromon' && talkCount >= 5) {
-                checkEvolution();
-            }
+            // 4. 進化判定チェック
+            checkEvolutionProgress();
 
         } catch (error) {
             dialogueText.innerText = "エラーが発生しました。下のボックスを確認してください。";
@@ -821,13 +725,42 @@ ${pInfo.prompt}
         }
     }
 
+
+
+    // --- 進化判定ロジック ---
+    function checkEvolutionProgress() {
+        if (isPerformingAction) return; // 演出中は進化を一旦スキップ（演出終了時に再チェック）
+
+        const dialogueText = document.getElementById('dialogueText');
+        const digimonImage = document.getElementById('digimonImage');
+
+        // 1. ボタモン ➔ コロモン
+        if (currentForm === 'botamon' && talkCount >= 5) {
+            currentForm = 'koromon';
+            alert("ボタモンしんか～！");
+            document.getElementById('digimonName').innerText = DIGIMON_NAMES[currentForm];
+            
+            rollRandomPersonality();
+            updateSystemInstruction();
+
+            digimonImage.src = "koromon_normal.gif";
+            dialogueText.innerText = `ボタモンは コロモン に進化した！（せいかくが「${PERSONALITIES[currentPersonalityKey].name}」になったよ！）`;
+            
+            talkCount = 0;
+            emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
+        }
+        // 2. コロモン ➔ アグモン分岐
+        else if (currentForm === 'koromon' && talkCount >= 10) {
+            checkEvolutionBranch();
+        }
+    }
+
     // コロモンから成長期（アグモン3種）への分岐進化関数
-    function checkEvolution() {
+    function checkEvolutionBranch() {
         const dialogueText = document.getElementById('dialogueText');
         let maxCount = -1;
         let dominantEmotions = [];
 
-        // happy, angry, sad の中で最多を探す
         ['happy', 'angry', 'sad'].forEach(emo => {
             const count = emotionCounts[emo];
             if (count > maxCount) {
@@ -838,13 +771,8 @@ ${pInfo.prompt}
             }
         });
 
-        // 進化先の決定
         let nextForm = '';
         if (dominantEmotions.length !== 1 || maxCount === 0) {
-            
-
-
-            // タイ（同数）または全部 normal の場合は3種からランダム
             const candidates = ['agumon', 'agumon_black', 'yuki_agumon'];
             nextForm = candidates[Math.floor(Math.random() * candidates.length)];
         } else {
@@ -854,20 +782,15 @@ ${pInfo.prompt}
             if (winning === 'sad') nextForm = 'yuki_agumon';
         }
 
-        // 進化実行
         currentForm = nextForm;
         alert("コロモンしんか～！");
 
-        // 進化後に性格も一新！
         rollRandomPersonality();
         updateSystemInstruction();
 
         dialogueText.innerText = `コロモンは ${DIGIMON_NAMES[nextForm]} に進化した！（せいかくが「${PERSONALITIES[currentPersonalityKey].name}」になったよ！）`;
-        document.getElementById('digimonName').innerText = DIGIMON_NAMES[currentForm];
+        document.getElementById('digimonName').innerText = DIGIMON_NAMES[nextForm];
 
-
-
-        // 画像更新とカウントリセット
         document.getElementById('digimonImage').src = `${currentForm}_normal.gif`;
         talkCount = 0;
         emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };

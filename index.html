@@ -372,6 +372,7 @@
         botamon: "ボタモン",
         koromon: "コロモン",
         agumon: "アグモン",
+        agumon2006: "アグモン2006",
         agumon_black: "アグモン（黒）",
         yuki_agumon: "ユキアグモン"
     };
@@ -380,6 +381,7 @@
         botamon: "生まれたての全身が黒い繊毛で覆われた、黄色い目を持つ生まれたてのデジモンです。まだ生まれたてです。",
         koromon: "ボタモンから進化した、ピンク色の体に長い耳のような触角を持つ丸っこい幼年期Ⅱのデジモンです。",
         agumon: "コロモンから進化した黄色い恐竜の子供みたいな成長期のデジモンです。必殺技は口から火炎玉を吐き出す”ベビーフレイム”です。",
+agumon2006: "コロモンから進化した黄色い恐竜の子供みたいな姿に赤いレザーバンドを手に巻けた成長期のデジモンです。必殺技は強力な火炎玉を吐き出す”ベビーバーナー”です。",
         agumon_black: "コロモンから進化した黒い恐竜の子供みたいな成長期のデジモンです。必殺技は口から連続火炎を吐き出す”スピットファイア”です。",
         yuki_agumon: "コロモンから進化した白い恐竜の子供みたいな成長期のデジモンです。必殺技は口から小さな吹雪を吐き出す”リトルブリザード”です。"
     };
@@ -755,13 +757,14 @@ ${pInfo.prompt}
         }
     }
 
-    // コロモンから成長期（アグモン3種）への分岐進化関数
+    // コロモンから成長期（アグモン4種）への分岐進化関数
     function checkEvolutionBranch() {
         const dialogueText = document.getElementById('dialogueText');
         let maxCount = -1;
         let dominantEmotions = [];
 
-        ['happy', 'angry', 'sad'].forEach(emo => {
+        
+        ['happy', 'angry', 'sad', 'normal'].forEach(emo => {
             const count = emotionCounts[emo];
             if (count > maxCount) {
                 maxCount = count;
@@ -772,14 +775,16 @@ ${pInfo.prompt}
         });
 
         let nextForm = '';
+        // 同率またはカウント0の場合は全4種からランダム
         if (dominantEmotions.length !== 1 || maxCount === 0) {
-            const candidates = ['agumon', 'agumon_black', 'yuki_agumon'];
+            const candidates = ['agumon', 'agumon2006', 'agumon_black', 'yuki_agumon'];
             nextForm = candidates[Math.floor(Math.random() * candidates.length)];
         } else {
             const winning = dominantEmotions[0];
-            if (winning === 'happy') nextForm = 'agumon';
-            if (winning === 'angry') nextForm = 'agumon_black';
-            if (winning === 'sad') nextForm = 'yuki_agumon';
+            if (winning === 'normal') nextForm = 'agumon';        // normal：通常のアグモン
+            if (winning === 'happy')  nextForm = 'agumon2006';    // happy：アグモン2006
+            if (winning === 'angry')  nextForm = 'agumon_black';   // angry：アグモン（黒）
+            if (winning === 'sad')    nextForm = 'yuki_agumon';    // sad：ユキアグモン
         }
 
         currentForm = nextForm;

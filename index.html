@@ -356,7 +356,7 @@
 <script>
     // --- 状態変数 ---
     let talkCount = 0;          // 進化用カウント（累計会話数）
-    let careCount = 0;          // お世話解放用カウンター（10回で解放）
+    let careCount = 0;          // お世話解放用カウンター（5回で解放）
     let isPerformingAction = false; // アクション演出中フラグ
     let currentForm = 'botamon'; 
     let currentPersonalityKey = '';
@@ -449,7 +449,7 @@ agumon2006: "コロモンから進化した黄色い恐竜の子供みたいな�
         const detail = DIGIMON_DETAILS[currentForm] || "";
 
         window.SYSTEM_INSTRUCTION = `
-あなたのはデジモンの「${name}」です。
+あなたはデジモンの「${name}」です。
 【デジモン情報】
 ${detail}
 
@@ -529,7 +529,7 @@ ${pInfo.prompt}
         modelListLog.innerText = "確認中...";
         modelListLog.style.display = 'block';
 
-        const url = `https://generativelanguage.googleapis.com/v1/models?key=${apiKey}`;
+        const url = `https://generativelanguage.googleapis.com/v1beta/models?key=${apiKey}`;
 
         try {
             const response = await fetch(url);
@@ -731,15 +731,16 @@ ${pInfo.prompt}
 
     // --- 進化判定ロジック ---
     function checkEvolutionProgress() {
-        if (isPerformingAction) return; // 演出中は進化を一旦スキップ（演出終了時に再チェック）
+        if (isPerformingAction) return; // 演出中は進化を一旦スキップ
 
         const dialogueText = document.getElementById('dialogueText');
         const digimonImage = document.getElementById('digimonImage');
 
         // 1. ボタモン ➔ コロモン
         if (currentForm === 'botamon' && talkCount >= 5) {
+            alert("ボタモンしんか～！"); // アラートを先に出すことで、直前のセリフを読ませる時間を確保
+
             currentForm = 'koromon';
-            alert("ボタモンしんか～！");
             document.getElementById('digimonName').innerText = DIGIMON_NAMES[currentForm];
             
             rollRandomPersonality();
@@ -756,6 +757,7 @@ ${pInfo.prompt}
             checkEvolutionBranch();
         }
     }
+
 
     // コロモンから成長期（アグモン4種）への分岐進化関数
     function checkEvolutionBranch() {

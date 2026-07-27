@@ -175,6 +175,12 @@
             bottom: 10px;
             animation: walkPattern 8s infinite ease-in-out;
             animation-delay: 0.1s;
+            transition: max-height 0.3s ease; /* 拡大アニメーションを滑らかに */
+        }
+
+        /* ★成熟期用の1.5倍表示設定★ */
+        .digimon-img.adult-size {
+            max-height: 135px; /* 90px * 1.5 = 135px */
         }
 
         .action-container {
@@ -191,6 +197,12 @@
             max-height: 80px;
             object-fit: contain;
             image-rendering: pixelated;
+            transition: max-height 0.3s ease;
+        }
+
+        /* ★アクション演出時の成熟期1.5倍設定★ */
+        .action-digimon-img.adult-size {
+            max-height: 120px; /* 80px * 1.5 = 120px */
         }
 
         @keyframes walkPattern {
@@ -349,8 +361,8 @@
 
 <script>
     // --- 状態変数 ---
-    let talkCount = 0;          // 進化用カウント（累計会話数）
-    let careCount = 0;          // お世話解放用カウンター（5回で解放）
+    let talkCount = 0;          
+    let careCount = 0;          
     let isPerformingAction = false; 
     let currentForm = 'botamon'; 
     let currentPersonalityKey = '';
@@ -360,6 +372,9 @@
         sad: 0,
         normal: 0
     };
+
+    // 成熟期のリスト定義（このリストにあるデジモンは1.5倍で表示される）
+    const ADULT_DIGIMONS = ['greymon', 'giogreymon', 'dalktiranomon', 'monokuromon', 'yukidarumon'];
 
     // 表示名のマップ
     const DIGIMON_NAMES = {
@@ -433,6 +448,21 @@
         }
     };
 
+    // ★世代に応じた画像サイズ調整関数★
+    function updateDigimonScale() {
+        const digimonImg = document.getElementById('digimonImage');
+        const actionDigimonImg = document.getElementById('actionDigimonImg');
+        const isAdult = ADULT_DIGIMONS.includes(currentForm);
+
+        if (isAdult) {
+            digimonImg.classList.add('adult-size');
+            actionDigimonImg.classList.add('adult-size');
+        } else {
+            digimonImg.classList.remove('adult-size');
+            actionDigimonImg.classList.remove('adult-size');
+        }
+    }
+
     function setPersonalityGreeting(trainerName) {
         const pInfo = PERSONALITIES[currentPersonalityKey];
         if (!pInfo || !pInfo.greetings) return;
@@ -475,6 +505,7 @@ ${pInfo.prompt}
     window.onload = function() {
         rollRandomPersonality();
         updateSystemInstruction();
+        updateDigimonScale();
         const savedName = localStorage.getItem('trainerName');
         if (!savedName) {
             showNameEntry();
@@ -599,6 +630,7 @@ ${pInfo.prompt}
         const actionDigimonImg = document.getElementById('actionDigimonImg');
         const actionEffectImg = document.getElementById('actionEffectImg');
 
+        updateDigimonScale();
         digimonImage.style.display = 'none';
 
         const digimonGifName = (currentForm === 'botamon') ? `${emotionKey}.gif` : `${currentForm}_${emotionKey}.gif`;
@@ -725,6 +757,7 @@ ${pInfo.prompt}
             
             rollRandomPersonality();
             updateSystemInstruction();
+            updateDigimonScale();
 
             document.getElementById('digimonImage').src = "koromon_normal.gif";
             document.getElementById('dialogueText').innerText = `ボタモンは コロモン に進化した！（せいかくが「${PERSONALITIES[currentPersonalityKey].name}」になったよ！）`;
@@ -775,6 +808,7 @@ ${pInfo.prompt}
 
         rollRandomPersonality();
         updateSystemInstruction();
+        updateDigimonScale();
 
         dialogueText.innerText = `コロモンは ${DIGIMON_NAMES[nextForm]} に進化した！（せいかくが「${PERSONALITIES[currentPersonalityKey].name}」になったよ！）`;
         document.getElementById('digimonName').innerText = DIGIMON_NAMES[nextForm];
@@ -807,7 +841,7 @@ ${pInfo.prompt}
         } else {
             const winning = dominantEmotions[0];
             if (winning === 'normal') nextForm = 'greymon';         // グレイモン
-            if (winning === 'happy')  nextForm = 'yukidarumon';      // ユキダルモン
+            if (winning === 'happy')  nextForm = 'giogreymon';      // ジオグレイモン
             if (winning === 'angry')  nextForm = 'dalktiranomon';  // ダークティラモン
             if (winning === 'sad')    nextForm = 'monokuromon';     // モノクロモン
         }
@@ -818,6 +852,7 @@ ${pInfo.prompt}
 
         rollRandomPersonality();
         updateSystemInstruction();
+        updateDigimonScale(); // 成熟期サイズ（1.5倍）へ切り替え
 
         dialogueText.innerText = `${prevName}は ${DIGIMON_NAMES[nextForm]} に進化した！（せいかくが「${PERSONALITIES[currentPersonalityKey].name}」になったよ！）`;
         document.getElementById('digimonName').innerText = DIGIMON_NAMES[nextForm];

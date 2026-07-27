@@ -175,10 +175,10 @@
             bottom: 10px;
             animation: walkPattern 8s infinite ease-in-out;
             animation-delay: 0.1s;
-            transition: max-height 0.3s ease; /* 拡大アニメーションを滑らかに */
+            transition: max-height 0.3s ease;
         }
 
-        /* ★成熟期用の1.5倍表示設定★ */
+        /* 成熟期用の1.5倍表示設定 */
         .digimon-img.adult-size {
             max-height: 135px; /* 90px * 1.5 = 135px */
         }
@@ -200,7 +200,7 @@
             transition: max-height 0.3s ease;
         }
 
-        /* ★アクション演出時の成熟期1.5倍設定★ */
+        /* アクション演出時の成熟期1.5倍設定 */
         .action-digimon-img.adult-size {
             max-height: 120px; /* 80px * 1.5 = 120px */
         }
@@ -344,7 +344,7 @@
         <div style="font-size: 11px; color: #ffcc00; margin-bottom: 3px;">
             <span id="digimonName">ボタモン</span>
             <span id="personalityDisplay" style="font-size: 10px; color: #aaa; margin-left: 5px;"></span>
-            <span id="careCounterDisplay" style="font-size: 10px; color: #00ffcc; float: right;">コマンド解禁まであと: 0/5</span>
+            <span id="careCounterDisplay" style="font-size: 10px; color: #00ffcc; float: right;">お世話まであと: 0/5</span>
         </div>
         <div id="dialogueText"></div>
     </div>
@@ -373,8 +373,8 @@
         normal: 0
     };
 
-    // 成熟期のリスト定義（このリストにあるデジモンは1.5倍で表示される）
-    const ADULT_DIGIMONS = ['greymon', 'giogreymon', 'dalktiranomon', 'monokuromon', 'yukidarumon'];
+    // 成熟期のリスト定義（tiranomonを追加）
+    const ADULT_DIGIMONS = ['greymon', 'giogreymon', 'dalktiranomon', 'tiranomon', 'monokuromon', 'yukidarumon'];
 
     // 表示名のマップ
     const DIGIMON_NAMES = {
@@ -387,6 +387,7 @@
         greymon: "グレイモン",
         giogreymon: "ジオグレイモン",
         dalktiranomon: "ダークティラモン",
+        tiranomon: "ティラモン",
         monokuromon: "モノクロモン",
         yukidarumon: "ユキダルモン"
     };
@@ -401,6 +402,7 @@
         greymon: "頭部を角の生えた殻で覆った巨大な恐竜みたいな成熟期のデジモンです。必殺技は口から超高熱火炎を吐き出す”メガフレイム”です。",
         giogreymon: "頭部を角の生えた殻で覆った巨大な恐竜みたいな成熟期のデジモンです。グレイモンの亜種で模様が濃く力が強い。必殺技は口から超高熱火炎を極限まで高め吐き出す”メガバースト”です。",
         dalktiranomon: "悪質なコンピュータウイルスに体を浸食された黒い恐竜みたいな成熟期のデジモンです。必殺技は超強力な火炎放射”ファイヤーブラスト”です。",
+        tiranomon: "真っ赤な皮膚を持つ大昔の恐竜のような見た目をした成熟期のデジモンです。おとなしく優しい性格をしています。必殺技は鮮やかな赤色の火炎を吐き出す”ファイヤーブラスター”です。",
         monokuromon: "サイの角を生やしたトリケラトプスのような草食性な成熟期のデジモンです。必殺技は強力な火炎弾”ヴォルケーノストライク”です。",
         yukidarumon: "全身が雪と氷でできた心優しい雪だるまの姿をした成熟期のデジモンです。必殺技は絶対零度の冷気パンチ”絶対凍結拳”です。"
     };
@@ -448,7 +450,6 @@
         }
     };
 
-    // ★世代に応じた画像サイズ調整関数★
     function updateDigimonScale() {
         const digimonImg = document.getElementById('digimonImage');
         const actionDigimonImg = document.getElementById('actionDigimonImg');
@@ -611,7 +612,7 @@ ${pInfo.prompt}
             counterDisplay.style.color = "#ffcc00";
             buttons.forEach(btn => btn.classList.add('active'));
         } else {
-            counterDisplay.innerText = `コマンド解放まで ${careCount}/5`;
+            counterDisplay.innerText = `お世話まで ${careCount}/5`;
             counterDisplay.style.color = "#00ffcc";
             buttons.forEach(btn => btn.classList.remove('active'));
         }
@@ -818,9 +819,42 @@ ${pInfo.prompt}
         emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
     }
 
-    // 成長期から成熟期への分岐進化
+
+
+
+
+    // 成長期から成熟期への個別分岐進化
     function checkAdultBranch() {
         const dialogueText = document.getElementById('dialogueText');
+        
+        // 成長期ごとの成熟期分岐定義マッピング
+        const evolutionRoutes = {
+            agumon: {
+                normal: 'greymon',
+                happy: 'tiranomon',
+                angry: 'monokuromon',
+                sad: 'yukidarumon'
+            },
+            agumon2006: {
+                normal: 'giogreymon',
+                happy: 'dalktiranomon',
+                angry: 'tiranomon',
+                sad: 'yukidarumon'
+            },
+            agumon_black: {
+                normal: 'dalktiranomon',
+                happy: 'monokuromon',
+                angry: 'giogreymon',
+                sad: 'tiranomon'
+            },
+            yuki_agumon: {
+                normal: 'yukidarumon',
+                happy: 'monokuromon',
+                angry: 'greymon',
+                sad: 'giogreymon'
+            }
+        };
+
         let maxCount = -1;
         let dominantEmotions = [];
 
@@ -834,16 +868,16 @@ ${pInfo.prompt}
             }
         });
 
+        const currentRoute = evolutionRoutes[currentForm];
         let nextForm = '';
+
+        // 感情の競合（引き分け）または感情カウントが一切ない場合は候補からランダム
         if (dominantEmotions.length !== 1 || maxCount === 0) {
-            const candidates = ['greymon', 'giogreymon', 'dalktiranomon', 'monokuromon'];
+            const candidates = Object.values(currentRoute);
             nextForm = candidates[Math.floor(Math.random() * candidates.length)];
         } else {
             const winning = dominantEmotions[0];
-            if (winning === 'normal') nextForm = 'greymon';         // グレイモン
-            if (winning === 'happy')  nextForm = 'giogreymon';      // ジオグレイモン
-            if (winning === 'angry')  nextForm = 'dalktiranomon';  // ダークティラモン
-            if (winning === 'sad')    nextForm = 'monokuromon';     // モノクロモン
+            nextForm = currentRoute[winning];
         }
 
         const prevName = DIGIMON_NAMES[currentForm];

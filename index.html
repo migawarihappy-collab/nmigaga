@@ -387,9 +387,9 @@
     const PERFECT_DIGIMONS = [
         'mamemon', 
         'mastertiranomon', 
-        'metaltiranomaon', 
-        'metalgreymaon', 
-        'raisgreymaon', 
+        'metaltiranomon', 
+        'metalgreymon', 
+        'raisgreymon', 
         'vamirimon'
     ];
 
@@ -398,13 +398,13 @@
         botamon: "ボタモン",
         koromon: "コロモン",
 
-        // --- 成長期 ---
+        
         agumon: "アグモン",
         agumon2006: "アグモン2006",
         agumon_black: "アグモン（黒）",
         yuki_agumon: "ユキアグモン",
 
-        // --- 成熟期 ---
+        
         greymon: "グレイモン",
         giogreymon: "ジオグレイモン",
         dalktiranomon: "ダークティラモン",
@@ -412,12 +412,12 @@
         monokuromon: "モノクロモン",
         yukidarumon: "ユキダルモン",
 
-        // --- 完全体 ---
+        
         mamemon: "マメモン",
         mastertiranomon: "マスターティラノモン",
-        metaltiranomaon: "メタルティラノモン",
-        metalgreymaon: "メタルグレイモン",
-        raisgreymaon: "ライズグレイモン",
+        metaltiranomon: "メタルティラノモン",
+        metalgreymon: "メタルグレイモン",
+        raisgreymon: "ライズグレイモン",
         vamirimon: "ヴァーミリモン"
     };
 
@@ -436,9 +436,9 @@
         yukidarumon: "全身が雪と氷でできた心優しい雪だるまの姿をした成熟期のデジモンです。必殺技は絶対零度の冷気パンチ”絶対零度パンチ”です。",
         mamemon: "グローブを付けた豆粒みたいな見た目でありながら強力な攻撃力を持つ突然変異型の完全体デジモンです。必殺技はパンチでグローブを爆発させる”スマイリーボム”です。",
         mastertiranomon: "多くの戦いを勝ち抜き激しい修行を重ねた恐竜型デジモンです。必殺技は超高熱の火炎球を発射する”マスターファイアー”です。",
-        metaltiranomaon: "対地用迎撃の為に体をサイボーグ化した恐竜の完全体デジモンです。必殺技は左腕から放つエネルギー砲”ヌークリアレーザー”です。",
-        metalgreymaon: "身体の半分以上を機械化した強力なサイボーグ竜型の完全体デジモンです。必殺技は胸のハッチから有機体系ミサイルを発射する”ギガデストロイヤー”です。",
-        raisgreymaon: "翼と左腕を機械化したサイボーグ竜型の完全体デジモンです。必殺技は巨大なリボルバーから強力な三点エネルギー弾を撃ち出す”トライデントリボルバー”です。",
+        metaltiranomon: "対地用迎撃の為に体をサイボーグ化した恐竜の完全体デジモンです。必殺技は左腕から放つエネルギー砲”ヌークリアレーザー”です。",
+        metalgreymon: "身体の半分以上を機械化した強力なサイボーグ竜型の完全体デジモンです。必殺技は胸のハッチから有機体系ミサイルを発射する”ギガデストロイヤー”です。",
+        raisgreymon: "翼と左腕を機械化したサイボーグ竜型の完全体デジモンです。必殺技は巨大なリボルバーから強力な三点エネルギー弾を撃ち出す”トライデントリボルバー”です。",
         vamirimon: "全身が赤く染まったモノクロモンの上位種でイアモンド並みに硬い鎧のような皮膚は、火山の熱さにも強くなっている完全体デジモンです。必殺技はモノクロモンよりも強力な火球を放つ”ヴォルケーノストライクS”です。"
     };
 
@@ -939,25 +939,25 @@ ${pInfo.prompt}
         // 成熟期ごとの完全体進化ルート定義
         const evolutionRoutes = {
             greymon: {
-                normal: 'metalgreymaon',
+                normal: 'metalgreymon',
                 happy: 'mastertiranomon',
                 angry: 'vamirimon',
-                sad: 'metaltiranomaon'
+                sad: 'metaltiranomon'
             },
             tiranomon: {
                 normal: 'mamemon',
                 happy: 'mastertiranomon',
-                angry: 'metaltiranomaon',
-                sad: 'raisgreymaon'
+                angry: 'metaltiranomon',
+                sad: 'raisgreymon'
             },
             dalktiranomon: {
-                normal: 'metaltiranomaon',
-                happy: 'metalgreymaon',
+                normal: 'metaltiranomon',
+                happy: 'metalgreymon',
                 angry: 'mamemon',
                 sad: 'vamirimon'
             },
             giogreymon: {
-                normal: 'raisgreymaon',
+                normal: 'raisgreymon',
                 happy: 'vamirimon',
                 angry: 'mastertiranomon',
                 sad: 'mamemon'
@@ -965,14 +965,14 @@ ${pInfo.prompt}
             monokuromon: {
                 normal: 'vamirimon',
                 happy: 'mastertiranomon',
-                angry: 'metaltiranomaon',
-                sad: 'raisgreymaon'
+                angry: 'metaltiranomon',
+                sad: 'raisgreymon'
             },
             yukidarumon: {
                 normal: 'mamemon',
                 happy: 'mastertiranomon',
-                angry: 'metalgreymaon',
-                sad: 'metaltiranomaon'
+                angry: 'metalgreymon',
+                sad: 'metaltiranomon'
             }
         };
 

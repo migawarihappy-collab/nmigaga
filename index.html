@@ -786,7 +786,7 @@ ${pInfo.prompt}
         if (isPerformingAction) return;
 
         // 1. ボタモン ➔ コロモン
-        if (currentForm === 'botamon' && talkCount >= 5) {
+        if (currentForm === 'botamon' && talkCount >= 2) {
             alert("ボタモンしんか～！");
 
             currentForm = 'koromon';
@@ -803,7 +803,7 @@ ${pInfo.prompt}
             emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
         }
         // 2. コロモン ➔ 成長期（アグモン各種）分岐
-        else if (currentForm === 'koromon' && talkCount >= 10) {
+        else if (currentForm === 'koromon' && talkCount >= 2) {
             checkChildBranch();
         }
         // 3. 成長期 ➔ 成熟期分岐
@@ -811,7 +811,7 @@ ${pInfo.prompt}
             checkAdultBranch();
         }
         // 4. 成熟期 ➔ 完全体分岐
-        else if (ADULT_DIGIMONS.includes(currentForm) && talkCount >= 10) {
+        else if (ADULT_DIGIMONS.includes(currentForm) && talkCount >= 2) {
             checkPerfectBranch();
         }
     }

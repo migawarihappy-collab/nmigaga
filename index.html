@@ -72,7 +72,7 @@
             letter-spacing: 2px;
         }
 
-        /* 育成画面のパーツ */
+        /* API設定 */
         .api-setting {
             margin-bottom: 5px;
             font-size: 11px;
@@ -99,22 +99,101 @@
             margin-bottom: 5px;
             font-size: 12px;
             display: flex;
-            justify-content: center;
+            justify-content: space-between;
             align-items: center;
             gap: 5px;
+            padding: 0 4px;
         }
         .user-info-container {
             font-size: 12px;
             color: #fff;
             display: flex;
-            gap: 10px;
-            justify-content: center;
+            gap: 6px;
             align-items: center;
         }
-        .rename-btn {
+        .rename-btn, .status-btn {
             background: #555;
             padding: 2px 6px;
             font-size: 10px;
+            border: 1px solid #aaa;
+            border-radius: 3px;
+            cursor: pointer;
+            color: #fff;
+        }
+        .status-btn {
+            background: #ff9900;
+            color: #000;
+            font-weight: bold;
+            border-color: #ffcc00;
+        }
+
+        /* ステータスモーダル */
+        .modal-overlay {
+            position: absolute;
+            top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0, 0, 0, 0.75);
+            z-index: 150;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        .modal-box {
+            width: 85%;
+            background: #111;
+            border: 4px double #ffcc00;
+            border-radius: 8px;
+            padding: 15px;
+            box-sizing: border-box;
+            font-family: 'DotGothic16', sans-serif;
+            text-align: left;
+            color: #fff;
+            box-shadow: 0 0 10px #000;
+        }
+        .modal-title {
+            font-size: 16px;
+            color: #ffcc00;
+            text-align: center;
+            border-bottom: 2px dashed #555;
+            padding-bottom: 6px;
+            margin-bottom: 12px;
+        }
+        .status-row {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 8px;
+            font-size: 13px;
+        }
+        .status-label { color: #aaa; }
+        .status-val { font-weight: bold; color: #fff; }
+
+        .emotion-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 6px;
+            background: #222;
+            padding: 8px;
+            border-radius: 4px;
+            border: 1px solid #444;
+            margin: 8px 0 12px 0;
+        }
+        .emotion-item {
+            font-size: 12px;
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .modal-close-btn {
+            display: block;
+            width: 100%;
+            padding: 6px;
+            background: #555;
+            color: #fff;
+            border: 1px solid #888;
+            border-radius: 4px;
+            cursor: pointer;
+            text-align: center;
+            font-family: 'DotGothic16', sans-serif;
+            margin-top: 10px;
         }
 
         /* お世話コマンドエリア */
@@ -178,7 +257,6 @@
             transition: max-height 0.3s ease;
         }
 
-        /* 成熟期・完全体・究極体用の1.5倍表示設定 */
         .digimon-img.adult-size {
             max-height: 135px;
         }
@@ -200,7 +278,6 @@
             transition: max-height 0.3s ease;
         }
 
-        /* アクション演出時の成熟期・完全体・究極体1.5倍設定 */
         .action-digimon-img.adult-size {
             max-height: 120px;
         }
@@ -288,6 +365,47 @@
         </div>
     </div>
 
+    <!-- ステータスモーダル画面 -->
+    <div id="statusModal" class="modal-overlay" style="display: none;" onclick="closeStatusModal(event)">
+        <div class="modal-box" onclick="event.stopPropagation()">
+            <div class="modal-title">📊 デジモンステータス</div>
+            <div class="status-row">
+                <span class="status-label">【 なまえ 】</span>
+                <span class="status-val" id="statName">ボタモン</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">【 せいかく 】</span>
+                <span class="status-val" id="statPersonality" style="color: #ffcc00;">素直</span>
+            </div>
+            <div class="status-row">
+                <span class="status-label">【 へんかまで 】</span>
+                <span class="status-val" id="statEvolutionCount" style="color: #00ffcc;">0 / 10</span>
+            </div>
+
+            <div style="font-size: 11px; color: #aaa; margin-top: 10px; margin-bottom: 4px;">【 かんじょうち 】</div>
+            <div class="emotion-grid">
+                <div class="emotion-item">
+                    <span style="color: #aaa;">信頼:</span>
+                    <span id="statNormal" style="color: #fff;">0</span>
+                </div>
+                <div class="emotion-item">
+                    <span style="color: #ff66aa;">歓喜:</span>
+                    <span id="statHappy" style="color: #ff66aa;">0</span>
+                </div>
+                <div class="emotion-item">
+                    <span style="color: #ff4444;">激情:</span>
+                    <span id="statAngry" style="color: #ff4444;">0</span>
+                </div>
+                <div class="emotion-item">
+                    <span style="color: #aa66ff;">感受:</span>
+                    <span id="statSad" style="color: #aa66ff;">0</span>
+                </div>
+            </div>
+
+            <button class="modal-close-btn" onclick="toggleStatusModal(false)">とじる</button>
+        </div>
+    </div>
+
     <!-- APIキー設定 -->
     <div class="api-setting">
         <div>
@@ -304,20 +422,23 @@
 
     <!-- 設定・情報エリア -->
     <div class="bg-selector-container">
-        <label for="bgSelect">🏕️ はいけい: </label>
-        <select id="bgSelect" onchange="changeBackground()">
-            <option value="">なし（グレー）</option>
-            <option value="mati.jpg">はじまりの町</option>
-            <option value="sima.jpg">ファイル島</option>
-            <option value="senro.jpg">電車の平原</option>
-            <option value="mori.jpg">森林</option>
-            <option value="yugure.jpg">夕暮れ</option>
-            <option value="den.jpg">サイバー空間</option>
-            <option value="den2.jpg">サイバー空間２</option>
-        </select>
+        <div>
+            <label for="bgSelect">背景🏕️: </label>
+            <select id="bgSelect" onchange="changeBackground()">
+                <option value="">なし</option>
+                <option value="mati.jpg">はじまりの町</option>
+                <option value="sima.jpg">ファイル島</option>
+                <option value="senro.jpg">電車の平原</option>
+                <option value="mori.jpg">森林</option>
+                <option value="yugure.jpg">夕暮れ</option>
+                <option value="den.jpg">サイバー空間</option>
+                <option value="den2.jpg">サイバー空間２</option>
+            </select>
+        </div>
         <div class="user-info-container">
             <span>👤:<span id="userNameDisplay">---</span></span>
             <button class="rename-btn" onclick="showNameEntry()">かえる</button>
+            <button class="status-btn" onclick="toggleStatusModal(true)">📊 ステータス</button>
         </div>
     </div>
 
@@ -488,6 +609,50 @@
             prompt: `【性格: シャイ】内気で人見知りな性格です。「私」「え…えっと…」「はわわ」といったおどおどした口調を使います。`
         }
     };
+
+    // --- ステータス表示モーダル ---
+    function toggleStatusModal(show) {
+        const modal = document.getElementById('statusModal');
+        if (show) {
+            updateStatusModalData();
+            modal.style.display = 'flex';
+        } else {
+            modal.style.display = 'none';
+        }
+    }
+
+    function closeStatusModal(event) {
+        if (event.target.id === 'statusModal') {
+            toggleStatusModal(false);
+        }
+    }
+
+    function getNextEvolutionThreshold() {
+        if (currentForm === 'botamon') return 10;
+        if (currentForm === 'koromon') return 20;
+        if (['agumon', 'agumon2006', 'agumon_black', 'yuki_agumon'].includes(currentForm)) return 30;
+        if (ADULT_DIGIMONS.includes(currentForm)) return 40;
+        if (PERFECT_DIGIMONS.includes(currentForm)) return 70;
+        if (ULTIMATE_DIGIMONS.includes(currentForm)) return 80; // 転生
+        return 0;
+    }
+
+    function updateStatusModalData() {
+        document.getElementById('statName').innerText = DIGIMON_NAMES[currentForm] || "デジモン";
+        
+        const pInfo = PERSONALITIES[currentPersonalityKey];
+        document.getElementById('statPersonality').innerText = pInfo ? pInfo.name : "不明";
+
+        const threshold = getNextEvolutionThreshold();
+        const labelText = ULTIMATE_DIGIMONS.includes(currentForm) ? "てんせいまで" : "しんかまで";
+        document.querySelector('#statusModal .status-row:nth-child(4) .status-label').innerText = `【 ${labelText} 】`;
+        document.getElementById('statEvolutionCount').innerText = `${talkCount} / ${threshold}`;
+
+        document.getElementById('statNormal').innerText = emotionCounts.normal || 0;
+        document.getElementById('statHappy').innerText = emotionCounts.happy || 0;
+        document.getElementById('statAngry').innerText = emotionCounts.angry || 0;
+        document.getElementById('statSad').innerText = emotionCounts.sad || 0;
+    }
 
     // --- セーブ/ロード機能 ---
     function saveData() {

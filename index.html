@@ -439,7 +439,21 @@
         metaltiranomon: "対地用迎撃の為に体をサイボーグ化した恐竜の完全体デジモンです。必殺技は左腕から放つエネルギー砲”ヌークリアレーザー”です。",
         metalgreymon: "身体の半分以上を機械化した強力なサイボーグ竜型の完全体デジモンです。必殺技は胸のハッチから有機体系ミサイルを発射する”ギガデストロイヤー”です。",
         raisgreymon: "翼と左腕を機械化したサイボーグ竜型の完全体デジモンです。必殺技は巨大なリボルバーから強力な三点エネルギー弾を撃ち出す”トライデントリボルバー”です。",
-        vamirimon: "全身が赤く染まったモノクロモンの上位種でイアモンド並みに硬い鎧のような皮膚は、火山の熱さにも強くなっている完全体デジモンです。必殺技はモノクロモンよりも強力な火球を放つ”ヴォルケーノストライクS”です。"
+        vamirimon: "全身が赤く染まったモノクロモンの上位種でイアモンド並みに硬い鎧のような皮膚は、火山の熱さにも強くなっている完全体デジモンです。必殺技はモノクロモンよりも強力な火球を放つ”ヴォルケーノストライクS”です。",
+
+wogureymon: "超金属「クロムデジゾイド」の鎧を身にまとった竜戦士型の究極体デジモンです。必殺技は大気中のエネルギーを全て１点に集中させて放つ、超高密度の高熱エネルギー弾”ガイアフォース”です。",
+
+vgureymon: "巨大な剣「ドラモンブレイカー」を操る、グレイモン系デジモンの変種である究極体デジモンです。必殺技は大気中に存在する全てのエネルギーを剣の先端に集中させて放つ”トライデントガイア”です。",
+
+silyaingreymon: "太陽級の超高エネルギーを蓄えて戦う竜人のような光竜型の究極体デジモンです。必殺技は光の翼を開き灼熱の弾丸を放つ”グロリアスバースト”です。",
+
+bwogureymon: "漆黒の超金属で身を包んだ、ウイルス種のウォーグレイモンです。自分なりの“正義”のために存在している。卑怯や卑劣なことを嫌い、同じウィルス種でも低俗なデジモンは仲間だとは思っていない。必殺技は暗黒のエネルギー球を発射する”暗黒のガイアフォース”です。",
+
+mugendoramon: "全身が100%フルメタルのサイボーグデジモンたちのパーツで組み上げられた究極体デジモンです。必殺技は2本のキャノン砲から放つ”ムゲンキャノン”です。",
+
+
+"激しい戦いを生き抜き過酷な環境で進化したサイボーグ恐竜デジモンです。戦術は殲滅戦に特化され、１体で敵の拠点もろとも薙ぎ払います。必殺技は背中の砲台を前方に展開して大型な電磁砲を撃ちだす”テラーズクラスター”です。"
+
     };
 
     const PERSONALITIES = {
@@ -802,6 +816,9 @@ ${pInfo.prompt}
             talkCount = 0;
             emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
         }
+
+
+
         // 2. コロモン ➔ 成長期（アグモン各種）分岐
         else if (currentForm === 'koromon' && talkCount >= 2) {
             checkChildBranch();
@@ -814,7 +831,15 @@ ${pInfo.prompt}
         else if (ADULT_DIGIMONS.includes(currentForm) && talkCount >= 2) {
             checkPerfectBranch();
         }
+        // 5. 完全体 ➔ 究極体分岐
+        else if (PERFECT_DIGIMONS.includes(currentForm) && talkCount >= 2) {
+            checkUltimateBranch();
+        }
     }
+
+
+
+
 
     // コロモンから成長期への分岐進化
     function checkChildBranch() {
@@ -1015,7 +1040,97 @@ ${pInfo.prompt}
         document.getElementById('digimonImage').src = `${currentForm}_normal.gif`;
         talkCount = 0;
         emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
-    }
+   
+}
+
+
+
+
+// 完全体から究極体への分岐進化
+    function checkUltimateBranch() {
+        const dialogueText = document.getElementById('dialogueText');
+        
+        // 完全体ごとの究極体進化ルート定義 (normal, happy, angry, sad)
+        const evolutionRoutes = {
+            metalgreymaon: {
+                normal: 'wogureymon',
+                happy: 'mugendoramon',
+                angry: 'vgureymon',
+                sad: 'rasttiranomon'
+            },
+            metaltiranomaon: {
+                normal: 'bwogureymon',
+                happy: 'mugendoramon',
+                angry: 'rasttiranomon',
+                sad: 'wogureymon'
+            },
+            mamemon: {
+                normal: 'mugendoramon',
+                happy: 'wogureymon',
+                angry: 'silyaingreymon',
+                sad: 'vgureymon'
+            },
+            raisgreymaon: {
+                normal: 'silyaingreymon',
+                happy: 'vgureymon',
+                angry: 'rasttiranomon',
+                sad: 'bwogureymon'
+            },
+            mastertiranomon: {
+                normal: 'vgureymon',
+                happy: 'rasttiranomon',
+                angry: 'silyaingreymon',
+                sad: 'wogureymon'
+            },
+            vamirimon: {
+                normal: 'silyaingreymon',
+                happy: 'wogureymon',
+                angry: 'bwogureymon',
+                sad: 'rasttiranomon'
+            }
+        };
+
+        let maxCount = -1;
+        let dominantEmotions = [];
+
+        ['happy', 'angry', 'sad', 'normal'].forEach(emo => {
+            const count = emotionCounts[emo];
+            if (count > maxCount) {
+                maxCount = count;
+                dominantEmotions = [emo];
+            } else if (count === maxCount && count > 0) {
+                dominantEmotions.push(emo);
+            }
+        });
+
+        const currentRoute = evolutionRoutes[currentForm];
+        let nextForm = '';
+
+        if (dominantEmotions.length !== 1 || maxCount === 0) {
+            const candidates = Object.values(currentRoute);
+            nextForm = candidates[Math.floor(Math.random() * candidates.length)];
+        } else {
+            const winning = dominantEmotions[0];
+            nextForm = currentRoute[winning];
+        }
+
+        const prevName = DIGIMON_NAMES[currentForm];
+        currentForm = nextForm;
+        alert(`${prevName}究極進化！`);
+
+        rollRandomPersonality();
+        updateSystemInstruction();
+        updateDigimonScale();
+
+        dialogueText.innerText = `${prevName}は ${DIGIMON_NAMES[nextForm]} に究極進化した！（せいかくが「${PERSONALITIES[currentPersonalityKey].name}」になったよ！）`;
+        document.getElementById('digimonName').innerText = DIGIMON_NAMES[nextForm];
+
+        document.getElementById('digimonImage').src = `${currentForm}_normal.gif`;
+        talkCount = 0;
+        emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
+   
+
+ }
 </script>
 </body>
 </html>

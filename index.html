@@ -180,7 +180,7 @@
 
         /* 成熟期・完全体・究極体用の1.5倍表示設定 */
         .digimon-img.adult-size {
-            max-height: 135px; /* 90px * 1.5 = 135px */
+            max-height: 135px;
         }
 
         .action-container {
@@ -202,7 +202,7 @@
 
         /* アクション演出時の成熟期・完全体・究極体1.5倍設定 */
         .action-digimon-img.adult-size {
-            max-height: 120px; /* 80px * 1.5 = 120px */
+            max-height: 120px;
         }
 
         @keyframes walkPattern {
@@ -292,7 +292,7 @@
     <div class="api-setting">
         <div>
             <label for="apiKey">Gemini API Key: </label>
-            <input type="password" id="apiKey" placeholder="AIZA..." style="padding: 2px; font-size: 10px; width: 150px;">
+            <input type="password" id="apiKey" placeholder="AIZA..." style="padding: 2px; font-size: 10px; width: 150px;" onchange="saveApiKey()">
         </div>
         <div>
             <button class="check-btn" onclick="checkAvailableModels()">👉 キーで使えるモデルを調べる</button>
@@ -375,58 +375,42 @@
 
     // 成熟期のリスト定義
     const ADULT_DIGIMONS = [
-        'greymon', 
-        'giogreymon', 
-        'dalktiranomon',
-        'tiranomon', 
-        'monokuromon', 
-        'yukidarumon'
+        'greymon', 'giogreymon', 'dalktiranomon',
+        'tiranomon', 'monokuromon', 'yukidarumon'
     ];
 
     // 完全体リストの定義 
     const PERFECT_DIGIMONS = [
-        'mamemon', 
-        'mastertiranomon', 
-        'metaltiranomon', 
-        'metalgreymon', 
-        'raisgreymon', 
-        'vamirimon'
+        'mamemon', 'mastertiranomon', 'metaltiranomon', 
+        'metalgreymon', 'raisgreymon', 'vamirimon'
     ];
 
     // 究極体リストの定義
     const ULTIMATE_DIGIMONS = [
-        'wogureymon',
-        'vgureymon',
-        'silyaingreymon',
-        'bwogureymon',
-        'mugendoramon',
-        'rasttiranomon'
+        'wogureymon', 'vgureymon', 'silyaingreymon',
+        'bwogureymon', 'mugendoramon', 'rasttiranomon'
     ];
 
     // 表示名のマップ
     const DIGIMON_NAMES = {
         botamon: "ボタモン",
         koromon: "コロモン",
-
         agumon: "アグモン",
         agumon2006: "アグモン2006",
         agumon_black: "アグモン（黒）",
         yuki_agumon: "ユキアグモン",
-
         greymon: "グレイモン",
         giogreymon: "ジオグレイモン",
         dalktiranomon: "ダークティラモン",
         tiranomon: "ティラモン",
         monokuromon: "モノクロモン",
         yukidarumon: "ユキダルモン",
-
         mamemon: "マメモン",
         mastertiranomon: "マスターティラノモン",
         metaltiranomon: "メタルティラノモン",
         metalgreymon: "メタルグレイモン",
         raisgreymon: "ライズグレイモン",
         vamirimon: "ヴァーミリモン",
-
         wogureymon: "ウォーグレイモン",
         vgureymon: "ビクトリーグレイモン",
         silyaingreymon: "シャイングレイモン",
@@ -505,10 +489,55 @@
         }
     };
 
+    // --- セーブ/ロード機能 ---
+    function saveData() {
+        const state = {
+            currentForm: currentForm,
+            currentPersonalityKey: currentPersonalityKey,
+            talkCount: talkCount,
+            careCount: careCount,
+            emotionCounts: emotionCounts,
+            bgValue: document.getElementById('bgSelect').value
+        };
+        localStorage.setItem('digimonState', JSON.stringify(state));
+    }
+
+    function loadData() {
+        const savedApiKey = localStorage.getItem('geminiApiKey');
+        if (savedApiKey) {
+            document.getElementById('apiKey').value = savedApiKey;
+        }
+
+        const savedState = localStorage.getItem('digimonState');
+        if (savedState) {
+            try {
+                const state = JSON.parse(savedState);
+                currentForm = state.currentForm || 'botamon';
+                currentPersonalityKey = state.currentPersonalityKey || '';
+                talkCount = state.talkCount || 0;
+                careCount = state.careCount || 0;
+                if (state.emotionCounts) emotionCounts = state.emotionCounts;
+                
+                if (state.bgValue !== undefined) {
+                    document.getElementById('bgSelect').value = state.bgValue;
+                    changeBackground();
+                }
+            } catch (e) {
+                console.error("セーブデータの読み込み失敗:", e);
+            }
+        }
+    }
+
+    function saveApiKey() {
+        const key = document.getElementById('apiKey').value.trim();
+        if (key) {
+            localStorage.setItem('geminiApiKey', key);
+        }
+    }
+
     function updateDigimonScale() {
         const digimonImg = document.getElementById('digimonImage');
         const actionDigimonImg = document.getElementById('actionDigimonImg');
-        // 成熟期・完全体・究極体の場合は1.5倍表示
         const isLarge = ADULT_DIGIMONS.includes(currentForm) || PERFECT_DIGIMONS.includes(currentForm) || ULTIMATE_DIGIMONS.includes(currentForm);
 
         if (isLarge) {
@@ -531,7 +560,12 @@
     function rollRandomPersonality() {
         const keys = Object.keys(PERSONALITIES);
         currentPersonalityKey = keys[Math.floor(Math.random() * keys.length)];
-        document.getElementById('personalityDisplay').innerText = `（せいかく：${PERSONALITIES[currentPersonalityKey].name}）`;
+    }
+
+    function updatePersonalityDisplay() {
+        if (currentPersonalityKey && PERSONALITIES[currentPersonalityKey]) {
+            document.getElementById('personalityDisplay').innerText = `（せいかく：${PERSONALITIES[currentPersonalityKey].name}）`;
+        }
     }
 
     function updateSystemInstruction() {
@@ -546,7 +580,7 @@ ${detail}
 
 以下の【性格指定】の口調やトーンを強く意識して会話してください。
 
-${pInfo.prompt}
+${pInfo ? pInfo.prompt : ""}
 
 会話の返答は、必ず以下のJSON形式でのみ出力してください。
 {"emotion": "感情の英単語", "text": "セリフ"}
@@ -560,9 +594,21 @@ ${pInfo.prompt}
     }
 
     window.onload = function() {
-        rollRandomPersonality();
+        loadData();
+
+        if (!currentPersonalityKey) {
+            rollRandomPersonality();
+        }
+
+        updatePersonalityDisplay();
         updateSystemInstruction();
         updateDigimonScale();
+
+        // 復元した姿に合わせて画像を設定
+        const initialGif = (currentForm === 'botamon') ? "normal.gif" : `${currentForm}_normal.gif`;
+        document.getElementById('digimonImage').src = initialGif;
+        document.getElementById('digimonName').innerText = DIGIMON_NAMES[currentForm] || "デジモン";
+
         const savedName = localStorage.getItem('trainerName');
         if (!savedName) {
             showNameEntry();
@@ -601,6 +647,7 @@ ${pInfo.prompt}
             digimonBox.style.background = `url('${bgSelect.value}') no-repeat center`;
             digimonBox.style.backgroundSize = "cover";
         }
+        saveData();
     }
 
     async function checkAvailableModels() {
@@ -617,6 +664,8 @@ ${pInfo.prompt}
             alert('APIキーを入力してからボタンを押してください！');
             return;
         }
+
+        saveApiKey();
 
         modelListLog.innerText = "確認中...";
         modelListLog.style.display = 'block';
@@ -698,6 +747,7 @@ ${pInfo.prompt}
 
         careCount = 0;
         updateCareUI();
+        saveData();
 
         setTimeout(() => {
             actionContainer.style.display = 'none';
@@ -731,6 +781,8 @@ ${pInfo.prompt}
             return;
         }
         if (!userInput) return;
+
+        saveApiKey();
 
         const selectedModel = modelSelect.value || 'gemini-3.1-flash-lite';
         const currentTrainerName = localStorage.getItem('trainerName') || "パートナー";
@@ -792,6 +844,7 @@ ${pInfo.prompt}
                 emotionCounts[emotion]++;
             }
 
+            saveData();
             checkEvolutionProgress();
 
         } catch (error) {
@@ -801,7 +854,7 @@ ${pInfo.prompt}
         }
     }
 
-    // --- 進化判定ロジック ---
+    // --- 進化・転生判定ロジック ---
     function checkEvolutionProgress() {
         if (isPerformingAction) return;
 
@@ -813,6 +866,7 @@ ${pInfo.prompt}
             document.getElementById('digimonName').innerText = DIGIMON_NAMES[currentForm];
             
             rollRandomPersonality();
+            updatePersonalityDisplay();
             updateSystemInstruction();
             updateDigimonScale();
 
@@ -821,6 +875,7 @@ ${pInfo.prompt}
             
             talkCount = 0;
             emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
+            saveData();
         }
         // 2. コロモン ➔ 成長期（アグモン各種）分岐
         else if (currentForm === 'koromon' && talkCount >= 20) {
@@ -835,15 +890,36 @@ ${pInfo.prompt}
             checkPerfectBranch();
         }
         // 5. 完全体 ➔ 究極体分岐
-        else if (PERFECT_DIGIMONS.includes(currentForm) && talkCount >= 60) {
+        else if (PERFECT_DIGIMONS.includes(currentForm) && talkCount >= 70) {
             checkUltimateBranch();
         }
-// 6. 究極体 ➔ ボタモンへ転生
+        // 6. 究極体 ➔ ボタモンへ転生
         else if (ULTIMATE_DIGIMONS.includes(currentForm) && talkCount >= 80) {
             rebirthToBotamon();
         }
+    }
 
+    // 究極体からの転生処理
+    function rebirthToBotamon() {
+        const prevName = DIGIMON_NAMES[currentForm];
+        alert(`${prevName}は寿命を迎え、デジタマからやり直します…！`);
 
+        currentForm = 'botamon';
+        document.getElementById('digimonName').innerText = DIGIMON_NAMES[currentForm];
+
+        rollRandomPersonality();
+        updatePersonalityDisplay();
+        updateSystemInstruction();
+        updateDigimonScale();
+
+        document.getElementById('digimonImage').src = "normal.gif";
+        document.getElementById('dialogueText').innerText = `${prevName}はデジタマへと還り、ボタモンとして生まれ変わった！（せいかく：${PERSONALITIES[currentPersonalityKey].name}）`;
+
+        talkCount = 0;
+        careCount = 0;
+        emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
+        updateCareUI();
+        saveData();
     }
 
     // コロモンから成長期への分岐進化
@@ -868,16 +944,17 @@ ${pInfo.prompt}
             nextForm = candidates[Math.floor(Math.random() * candidates.length)];
         } else {
             const winning = dominantEmotions[0];
-            if (winning === 'normal') nextForm = 'agumon';        // 通常のアグモン
-            if (winning === 'happy')  nextForm = 'agumon2006';    // アグモン2006
-            if (winning === 'angry')  nextForm = 'agumon_black';   // アグモン（黒）
-            if (winning === 'sad')    nextForm = 'yuki_agumon';    // ユキアグモン
+            if (winning === 'normal') nextForm = 'agumon';
+            if (winning === 'happy')  nextForm = 'agumon2006';
+            if (winning === 'angry')  nextForm = 'agumon_black';
+            if (winning === 'sad')    nextForm = 'yuki_agumon';
         }
 
         currentForm = nextForm;
         alert("コロモンしんか～！");
 
         rollRandomPersonality();
+        updatePersonalityDisplay();
         updateSystemInstruction();
         updateDigimonScale();
 
@@ -887,38 +964,18 @@ ${pInfo.prompt}
         document.getElementById('digimonImage').src = `${currentForm}_normal.gif`;
         talkCount = 0;
         emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
+        saveData();
     }
 
     // 成長期から成熟期への個別分岐進化
     function checkAdultBranch() {
         const dialogueText = document.getElementById('dialogueText');
         
-        // 成長期ごとの成熟期分岐定義マッピング
         const evolutionRoutes = {
-            agumon: {
-                normal: 'greymon',
-                happy: 'tiranomon',
-                angry: 'monokuromon',
-                sad: 'yukidarumon'
-            },
-            agumon2006: {
-                normal: 'giogreymon',
-                happy: 'dalktiranomon',
-                angry: 'tiranomon',
-                sad: 'yukidarumon'
-            },
-            agumon_black: {
-                normal: 'dalktiranomon',
-                happy: 'monokuromon',
-                angry: 'giogreymon',
-                sad: 'tiranomon'
-            },
-            yuki_agumon: {
-                normal: 'yukidarumon',
-                happy: 'monokuromon',
-                angry: 'greymon',
-                sad: 'giogreymon'
-            }
+            agumon: { normal: 'greymon', happy: 'tiranomon', angry: 'monokuromon', sad: 'yukidarumon' },
+            agumon2006: { normal: 'giogreymon', happy: 'dalktiranomon', angry: 'tiranomon', sad: 'yukidarumon' },
+            agumon_black: { normal: 'dalktiranomon', happy: 'monokuromon', angry: 'giogreymon', sad: 'tiranomon' },
+            yuki_agumon: { normal: 'yukidarumon', happy: 'monokuromon', angry: 'greymon', sad: 'giogreymon' }
         };
 
         let maxCount = -1;
@@ -950,6 +1007,7 @@ ${pInfo.prompt}
         alert(`${prevName}進化～！`);
 
         rollRandomPersonality();
+        updatePersonalityDisplay();
         updateSystemInstruction();
         updateDigimonScale();
 
@@ -959,50 +1017,20 @@ ${pInfo.prompt}
         document.getElementById('digimonImage').src = `${currentForm}_normal.gif`;
         talkCount = 0;
         emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
+        saveData();
     }
 
     // 成熟期から完全体への分岐進化
     function checkPerfectBranch() {
         const dialogueText = document.getElementById('dialogueText');
         
-        // 成熟期ごとの完全体進化ルート定義
         const evolutionRoutes = {
-            greymon: {
-                normal: 'metalgreymon',
-                happy: 'mastertiranomon',
-                angry: 'vamirimon',
-                sad: 'metaltiranomon'
-            },
-            tiranomon: {
-                normal: 'mamemon',
-                happy: 'mastertiranomon',
-                angry: 'metaltiranomon',
-                sad: 'raisgreymon'
-            },
-            dalktiranomon: {
-                normal: 'metaltiranomon',
-                happy: 'metalgreymon',
-                angry: 'mamemon',
-                sad: 'vamirimon'
-            },
-            giogreymon: {
-                normal: 'raisgreymon',
-                happy: 'vamirimon',
-                angry: 'mastertiranomon',
-                sad: 'mamemon'
-            },
-            monokuromon: {
-                normal: 'vamirimon',
-                happy: 'mastertiranomon',
-                angry: 'metaltiranomon',
-                sad: 'raisgreymon'
-            },
-            yukidarumon: {
-                normal: 'mamemon',
-                happy: 'mastertiranomon',
-                angry: 'metalgreymon',
-                sad: 'metaltiranomon'
-            }
+            greymon: { normal: 'metalgreymon', happy: 'mastertiranomon', angry: 'vamirimon', sad: 'metaltiranomon' },
+            tiranomon: { normal: 'mamemon', happy: 'mastertiranomon', angry: 'metaltiranomon', sad: 'raisgreymon' },
+            dalktiranomon: { normal: 'metaltiranomon', happy: 'metalgreymon', angry: 'mamemon', sad: 'vamirimon' },
+            giogreymon: { normal: 'raisgreymon', happy: 'vamirimon', angry: 'mastertiranomon', sad: 'mamemon' },
+            monokuromon: { normal: 'vamirimon', happy: 'mastertiranomon', angry: 'metaltiranomon', sad: 'raisgreymon' },
+            yukidarumon: { normal: 'mamemon', happy: 'mastertiranomon', angry: 'metalgreymon', sad: 'metaltiranomon' }
         };
 
         let maxCount = -1;
@@ -1034,6 +1062,7 @@ ${pInfo.prompt}
         alert(`${prevName}超進化！！`);
 
         rollRandomPersonality();
+        updatePersonalityDisplay();
         updateSystemInstruction();
         updateDigimonScale();
 
@@ -1043,50 +1072,20 @@ ${pInfo.prompt}
         document.getElementById('digimonImage').src = `${currentForm}_normal.gif`;
         talkCount = 0;
         emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
+        saveData();
     }
 
     // 完全体から究極体への分岐進化
     function checkUltimateBranch() {
         const dialogueText = document.getElementById('dialogueText');
         
-        // 完全体ごとの究極体進化ルート定義 (normal, happy, angry, sad)
         const evolutionRoutes = {
-            metalgreymon: {
-                normal: 'wogureymon',
-                happy: 'mugendoramon',
-                angry: 'vgureymon',
-                sad: 'rasttiranomon'
-            },
-            metaltiranomon: {
-                normal: 'bwogureymon',
-                happy: 'mugendoramon',
-                angry: 'rasttiranomon',
-                sad: 'wogureymon'
-            },
-            mamemon: {
-                normal: 'mugendoramon',
-                happy: 'wogureymon',
-                angry: 'silyaingreymon',
-                sad: 'vgureymon'
-            },
-            raisgreymon: {
-                normal: 'silyaingreymon',
-                happy: 'vgureymon',
-                angry: 'rasttiranomon',
-                sad: 'bwogureymon'
-            },
-            mastertiranomon: {
-                normal: 'vgureymon',
-                happy: 'rasttiranomon',
-                angry: 'silyaingreymon',
-                sad: 'wogureymon'
-            },
-            vamirimon: {
-                normal: 'silyaingreymon',
-                happy: 'wogureymon',
-                angry: 'bwogureymon',
-                sad: 'rasttiranomon'
-            }
+            metalgreymon: { normal: 'wogureymon', happy: 'mugendoramon', angry: 'vgureymon', sad: 'rasttiranomon' },
+            metaltiranomon: { normal: 'bwogureymon', happy: 'mugendoramon', angry: 'rasttiranomon', sad: 'wogureymon' },
+            mamemon: { normal: 'mugendoramon', happy: 'wogureymon', angry: 'silyaingreymon', sad: 'vgureymon' },
+            raisgreymon: { normal: 'silyaingreymon', happy: 'vgureymon', angry: 'rasttiranomon', sad: 'bwogureymon' },
+            mastertiranomon: { normal: 'vgureymon', happy: 'rasttiranomon', angry: 'silyaingreymon', sad: 'wogureymon' },
+            vamirimon: { normal: 'silyaingreymon', happy: 'wogureymon', angry: 'bwogureymon', sad: 'rasttiranomon' }
         };
 
         let maxCount = -1;
@@ -1118,6 +1117,7 @@ ${pInfo.prompt}
         alert(`${prevName}究極進化！`);
 
         rollRandomPersonality();
+        updatePersonalityDisplay();
         updateSystemInstruction();
         updateDigimonScale();
 
@@ -1127,31 +1127,8 @@ ${pInfo.prompt}
         document.getElementById('digimonImage').src = `${currentForm}_normal.gif`;
         talkCount = 0;
         emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
+        saveData();
     }
-
-// ボタモンへの転生処理
-    function rebirthToBotamon() {
-        const prevName = DIGIMON_NAMES[currentForm];
-        alert(`${prevName}は寿命を迎え、デジタマからやり直します…！`);
-
-        currentForm = 'botamon';
-        document.getElementById('digimonName').innerText = DIGIMON_NAMES[currentForm];
-
-        rollRandomPersonality();
-        updateSystemInstruction();
-        updateDigimonScale();
-
-        document.getElementById('digimonImage').src = "normal.gif";
-        document.getElementById('dialogueText').innerText = `${prevName}はデジタマへと還り、ボタモンとして生まれ変わった！（せいかく：${PERSONALITIES[currentPersonalityKey].name}）`;
-
-        // カウント類をリセット
-        talkCount = 0;
-        careCount = 0;
-        emotionCounts = { happy: 0, angry: 0, sad: 0, normal: 0 };
-        updateCareUI();
-    }
-
-
 </script>
 </body>
 </html>

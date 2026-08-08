@@ -6,7 +6,10 @@
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="ボタモン">
+    <meta name="theme-color" content="#333333">
+    
     <link rel="apple-touch-icon" href="icon.png">
+    <link rel="manifest" href="manifest.json">
 
     <title>デジモントーク</title>
     <style>
@@ -238,6 +241,8 @@
             margin-bottom: 8px;
             border: 2px inset #555;
             image-rendering: pixelated;
+            image-rendering: crisp-edges;
+            image-rendering: -moz-crisp-edges;
             background: #444; 
             background-size: cover;
             background-position: center;
@@ -255,6 +260,8 @@
             animation: walkPattern 8s infinite ease-in-out;
             animation-delay: 0.1s;
             transition: max-height 0.3s ease;
+            image-rendering: pixelated;
+            image-rendering: crisp-edges;
         }
 
         .digimon-img.adult-size {
@@ -275,6 +282,7 @@
             max-height: 80px;
             object-fit: contain;
             image-rendering: pixelated;
+            image-rendering: crisp-edges;
             transition: max-height 0.3s ease;
         }
 
@@ -481,6 +489,15 @@
 </div>
 
 <script>
+    // --- Service Workerの登録 (PWA用) ---
+    if ('serviceWorker' in navigator) {
+        window.addEventListener('load', () => {
+            navigator.serviceWorker.register('./sw.js')
+                .then(reg => console.log('Service Worker 登録成功:', reg.scope))
+                .catch(err => console.log('Service Worker 登録失敗:', err));
+        });
+    }
+
     // --- 状態変数 ---
     let talkCount = 0;          
     let careCount = 0;          
@@ -633,7 +650,7 @@
         if (['agumon', 'agumon2006', 'agumon_black', 'yuki_agumon'].includes(currentForm)) return 30;
         if (ADULT_DIGIMONS.includes(currentForm)) return 40;
         if (PERFECT_DIGIMONS.includes(currentForm)) return 70;
-        if (ULTIMATE_DIGIMONS.includes(currentForm)) return 80; // 転生
+        if (ULTIMATE_DIGIMONS.includes(currentForm)) return 80;
         return 0;
     }
 
